@@ -1,0 +1,101 @@
+{
+  "experimental_setup": {
+    "n_runs": 5,
+    "episodes_per_run": 10000,
+    "total_episodes": 50000,
+    "evaluation_games_per_baseline": 1000,
+    "confidence_level": 0.95
+  },
+  "sum_agent_performance": {
+    "mean_win_rate": 0.8277999999999999,
+    "std_win_rate": 0.018914544668059002,
+    "min_win_rate": 0.797,
+    "max_win_rate": 0.855,
+    "mean_reward": 8.107800000000001,
+    "std_reward": 2.4634550046631665
+  },
+  "baseline_comparisons": {
+    "random": {
+      "sum_vs_baseline_win_rate": 0.7333999999999999,
+      "average_reward_difference": 7.178399999999999,
+      "effect_size": 0.8236234406532372,
+      "wins_statistically_significant": true
+    },
+    "tight_aggressive": {
+      "sum_vs_baseline_win_rate": 0.6923999999999999,
+      "average_reward_difference": 5.082800000000001,
+      "effect_size": 0.48156231090991797,
+      "wins_statistically_significant": true
+    },
+    "loose_passive": {
+      "sum_vs_baseline_win_rate": 0.5027999999999999,
+      "average_reward_difference": 0.4555999999999999,
+      "effect_size": 0.006256781167251713,
+      "wins_statistically_significant": false
+    },
+    "classical_mixed_strategy": {
+      "sum_vs_baseline_win_rate": 0.7428,
+      "average_reward_difference": 7.552000000000001,
+      "effect_size": 0.8150946696654051,
+      "wins_statistically_significant": true
+    }
+  },
+  "statistical_significance": {
+    "random": {
+      "sum_mean_win_rate": 0.8277999999999999,
+      "baseline_mean_win_rate": 0.7333999999999999,
+      "win_rate_difference": 0.09439999999999993,
+      "t_statistic": 13.328866875507776,
+      "p_value": 0.00018317012495114678,
+      "effect_size": 6.668422922360061,
+      "confidence_interval_95": [
+        0.07685170504009002,
+        0.11194829495990984
+      ],
+      "statistically_significant": "True",
+      "practical_significance": "True"
+    },
+    "tight_aggressive": {
+      "sum_mean_win_rate": 0.8277999999999999,
+      "baseline_mean_win_rate": 0.6923999999999999,
+      "win_rate_difference": 0.13539999999999996,
+      "t_statistic": 8.422131040516923,
+      "p_value": 0.0010882017209117736,
+      "effect_size": 5.889183477189222,
+      "confidence_interval_95": [
+        0.10689968589646773,
+        0.1639003141035322
+      ],
+      "statistically_significant": "True",
+      "practical_significance": "True"
+    },
+    "loose_passive": {
+      "sum_mean_win_rate": 0.8277999999999999,
+      "baseline_mean_win_rate": 0.5027999999999999,
+      "win_rate_difference": 0.32499999999999996,
+      "t_statistic": 24.81711532043942,
+      "p_value": 1.5648028226413774e-05,
+      "effect_size": 22.536862581860433,
+      "confidence_interval_95": [
+        0.3071237684508171,
+        0.3428762315491828
+      ],
+      "statistically_significant": "True",
+      "practical_significance": "True"
+    },
+    "classical_mixed_strategy": {
+      "sum_mean_win_rate": 0.8277999999999999,
+      "baseline_mean_win_rate": 0.7428,
+      "win_rate_difference": 0.08499999999999985,
+      "t_statistic": 4.522172316136962,
+      "p_value": 0.01064066906477157,
+      "effect_size": 4.376794058165823,
+      "confidence_interval_95": [
+        0.06092596539007209,
+        0.10907403460992762
+      ],
+      "statistically_significant": "True",
+      "practical_significance": "True"
+    }
+  }
+}

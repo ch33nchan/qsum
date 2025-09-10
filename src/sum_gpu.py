@@ -18,6 +18,7 @@ import json
 from datetime import datetime
 from scipy import stats
 from collections import defaultdict
+from typing import Dict, List, Tuple
 from core.environment import PokerEnvironment
 from core.agent import SUMAgent
 from core.baseline_agents import get_baseline_agent

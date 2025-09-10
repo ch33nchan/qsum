@@ -1,0 +1,100 @@
+{
+  "run_index": 1,
+  "sum_results": {
+    "agent": "<core.agent.SUMAgent object at 0x7f4066b53220>",
+    "training_time": 148.5887746810913,
+    "final_metrics": {
+      "reward_stats": {
+        "mean": 6.0388,
+        "std": 7.337349287038201,
+        "median": 3.0,
+        "min": -2.0,
+        "max": 71.0,
+        "q25": 3.0,
+        "q75": 7.0
+      },
+      "uncertainty_stats": {
+        "mean_entropy": 1.3821063041687012,
+        "entropy_variance": 0.0005616240669041872,
+        "entropy_trend": 0.23705051399801924
+      },
+      "strategic_diversity_stats": {
+        "mean_diversity": 0.040076728254641696,
+        "diversity_consistency": 0.8705068726322003
+      },
+      "collapse_stats": {
+        "collapse_frequency": 4.2533,
+        "avg_collapse_pot_size": 11.495850280958315,
+        "collapse_hand_strength_correlation": -0.015444034576793352
+      },
+      "deception_stats": {
+        "bluff_success_rate": 0.3157894736842105,
+        "bluff_attempts": 19
+      },
+      "value_betting_stats": {
+        "value_bet_accuracy": 0.11920529801324503,
+        "value_bet_attempts": 151
+      },
+      "superposition_stats": {
+        "avg_superposition_duration": 244.5031017369727,
+        "superposition_utilization_rate": 0.1612
+      }
+    },
+    "final_evaluation": {
+      "win_rate": 0.825,
+      "avg_reward": 6.083,
+      "reward_std": 7.325715732950604,
+      "uncertainty_entropy": "1.3858545",
+      "collapse_frequency": 0.443,
+      "strategic_diversity": 0.018691756563639667,
+      "total_games": 1000
+    },
+    "run_index": 1
+  },
+  "baseline_results": {
+    "random": {
+      "win_rate": 0.732,
+      "sum_avg_reward": 2.515,
+      "baseline_avg_reward": -2.515,
+      "reward_difference": 5.03,
+      "t_statistic": 10.606245116924018,
+      "p_value": 5.601805051726574e-25,
+      "effect_size": 0.6711334905092887,
+      "significant": "True",
+      "total_games": 1000
+    },
+    "tight_aggressive": {
+      "win_rate": 0.725,
+      "sum_avg_reward": 2.287,
+      "baseline_avg_reward": -2.287,
+      "reward_difference": 4.574,
+      "t_statistic": 9.05045596527671,
+      "p_value": 7.278991005996902e-19,
+      "effect_size": 0.5726875096432195,
+      "significant": "True",
+      "total_games": 1000
+    },
+    "loose_passive": {
+      "win_rate": 0.506,
+      "sum_avg_reward": -1.018,
+      "baseline_avg_reward": 1.018,
+      "reward_difference": -2.036,
+      "t_statistic": -2.929591330095938,
+      "p_value": 0.0034712504281446785,
+      "effect_size": -0.1853763356831839,
+      "significant": "True",
+      "total_games": 1000
+    },
+    "classical_mixed_strategy": {
+      "win_rate": 0.759,
+      "sum_avg_reward": 2.836,
+      "baseline_avg_reward": -2.836,
+      "reward_difference": 5.672,
+      "t_statistic": 12.716230392080007,
+      "p_value": 1.9154437375343881e-34,
+      "effect_size": 0.8046474501649117,
+      "significant": "True",
+      "total_games": 1000
+    }
+  }
+}
