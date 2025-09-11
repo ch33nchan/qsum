@@ -226,59 +226,20 @@ class QuantumPokerPlayer(BasePokerPlayer):
         return action_info
     
     def _update_superposition_state(self, hand_strength, pot_odds):
-        """Update quantum superposition state with GPU acceleration"""
-        if self.use_gpu and TORCH_AVAILABLE:
-            # GPU-accelerated superposition calculation
-            hand_tensor = torch.tensor([hand_strength], device=self.gpu_device)
-            odds_tensor = torch.tensor([pot_odds], device=self.gpu_device)
-            
-            # Vectorized amplitude calculation
-            strong_mask = hand_tensor > 0.8
-            medium_mask = (hand_tensor > 0.5) & (hand_tensor <= 0.8)
-            weak_mask = hand_tensor <= 0.5
-            
-            amplitudes = torch.zeros(3, device=self.gpu_device)
-            
-            # Strong hand logic
-            amplitudes = torch.where(strong_mask.unsqueeze(0), 
-                                   torch.tensor([0.1, 0.2, 0.7], device=self.gpu_device), 
-                                   amplitudes)
-            
-            # Medium hand logic
-            if medium_mask.item():
-                if pot_odds < 0.3:
-                    amplitudes = torch.tensor([0.2, 0.6, 0.2], device=self.gpu_device)
-                else:
-                    amplitudes = torch.tensor([0.5, 0.3, 0.2], device=self.gpu_device)
-            
-            # Weak hand logic
-            if weak_mask.item():
-                if np.random.random() < 0.15:
-                    amplitudes = torch.tensor([0.3, 0.2, 0.5], device=self.gpu_device)
-                else:
-                    amplitudes = torch.tensor([0.7, 0.2, 0.1], device=self.gpu_device)
-            
-            # Normalize on GPU
-            amplitudes = amplitudes / amplitudes.sum()
-            self.superposition_state['amplitudes'] = amplitudes.cpu().tolist()
-        else:
-            # CPU fallback
-            if hand_strength > 0.8:  # Strong hand
-                self.superposition_state['amplitudes'] = [0.1, 0.2, 0.7]  # Favor raise
-            elif hand_strength > 0.5:  # Medium hand
-                if pot_odds < 0.3:
-                    self.superposition_state['amplitudes'] = [0.2, 0.6, 0.2]  # Favor call
-                else:
-                    self.superposition_state['amplitudes'] = [0.5, 0.3, 0.2]  # Favor fold
-            else:  # Weak hand
-                if np.random.random() < 0.15:  # Bluff opportunity
-                    self.superposition_state['amplitudes'] = [0.3, 0.2, 0.5]  # Bluff raise
-                else:
-                    self.superposition_state['amplitudes'] = [0.7, 0.2, 0.1]  # Mostly fold
-            
-            # Normalize amplitudes
-            total = sum(self.superposition_state['amplitudes'])
-            self.superposition_state['amplitudes'] = [a/total for a in self.superposition_state['amplitudes']]
+        """Update quantum superposition state - simplified for speed"""
+        # Simple CPU-based calculation for speed and reliability
+        if hand_strength > 0.8:  # Strong hand
+            self.superposition_state['amplitudes'] = [0.1, 0.2, 0.7]  # Favor raise
+        elif hand_strength > 0.5:  # Medium hand
+            if pot_odds < 0.3:
+                self.superposition_state['amplitudes'] = [0.2, 0.6, 0.2]  # Favor call
+            else:
+                self.superposition_state['amplitudes'] = [0.5, 0.3, 0.2]  # Favor fold
+        else:  # Weak hand
+            if np.random.random() < 0.15:  # Bluff opportunity
+                self.superposition_state['amplitudes'] = [0.3, 0.2, 0.5]  # Bluff raise
+            else:
+                self.superposition_state['amplitudes'] = [0.7, 0.2, 0.1]  # Mostly fold
     
     def _calculate_strategic_entropy(self) -> float:
         """Calculate strategic entropy of current superposition"""
@@ -320,38 +281,45 @@ class QuantumPokerPlayer(BasePokerPlayer):
     def _execute_strategic_collapse(self, valid_actions, hand_strength, pot_odds, trigger) -> Dict:
         """Execute strategic collapse to specific action"""
         
+        valid_action_names = [action['action'] for action in valid_actions]
+        
         if trigger == "strong_hand":
             # Aggressive play with strong hands
-            if 'raise' in [action['action'] for action in valid_actions]:
+            if 'raise' in valid_action_names:
                 raise_amount = self._calculate_raise_amount(valid_actions, hand_strength, aggressive=True)
                 return {'action': 'raise', 'amount': raise_amount, 'trigger': trigger}
-            else:
+            elif 'call' in valid_action_names:
                 return {'action': 'call', 'amount': 0, 'trigger': trigger}
+            else:
+                return {'action': 'fold', 'amount': 0, 'trigger': trigger}
         
         elif trigger == "weak_hand":
             return {'action': 'fold', 'amount': 0, 'trigger': trigger}
         
         else:
-            # Default to superposition decision
+            # Use simplified decision logic
             return self._superposition_decision(valid_actions, hand_strength, pot_odds)
     
     def _superposition_decision(self, valid_actions, hand_strength, pot_odds) -> Dict:
         """Make decision while maintaining superposition"""
         
-        # Probabilistic decision based on amplitudes
-        action_probs = self.superposition_state['amplitudes']
-        action_names = self.superposition_state['betting_actions']
-        
-        # Filter valid actions
+        # Get valid action names
         valid_action_names = [action['action'] for action in valid_actions]
         
-        # Choose action probabilistically
-        if 'raise' in valid_action_names and np.random.random() < action_probs[2]:
+        # Simple but effective decision logic based on hand strength
+        if hand_strength > 0.7 and 'raise' in valid_action_names:
+            # Strong hand - raise
             raise_amount = self._calculate_raise_amount(valid_actions, hand_strength)
             return {'action': 'raise', 'amount': raise_amount, 'trigger': 'superposition'}
-        elif 'call' in valid_action_names and np.random.random() < action_probs[1]:
+        elif hand_strength > 0.4 and 'call' in valid_action_names:
+            # Medium hand - call
             return {'action': 'call', 'amount': 0, 'trigger': 'superposition'}
+        elif hand_strength < 0.3 and np.random.random() < 0.1 and 'raise' in valid_action_names:
+            # Weak hand - occasional bluff
+            raise_amount = self._calculate_raise_amount(valid_actions, hand_strength)
+            return {'action': 'raise', 'amount': raise_amount, 'trigger': 'superposition'}
         else:
+            # Default - fold
             return {'action': 'fold', 'amount': 0, 'trigger': 'superposition'}
     
     def _calculate_raise_amount(self, valid_actions, hand_strength, aggressive=False) -> int:
