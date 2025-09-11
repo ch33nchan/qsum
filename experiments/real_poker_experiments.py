@@ -61,12 +61,12 @@ class QuantumPokerPlayer(BasePokerPlayer):
         if device == 'cuda' and TORCH_AVAILABLE and torch.cuda.is_available():
             self.use_gpu = True
             self.gpu_device = torch.device('cuda')
-            print(f"🚀 {name} using GPU acceleration")
+            print(f"{name} using GPU acceleration")
         else:
             self.use_gpu = False
             self.gpu_device = torch.device('cpu')
             if device == 'cuda':
-                print(f"⚠️ {name} falling back to CPU (CUDA not available)")
+                print(f"WARNING: {name} falling back to CPU (CUDA not available)")
         
         # Strategic Uncertainty Management state
         self.superposition_state = {
@@ -425,7 +425,7 @@ class RealPokerExperimentFramework:
         # GPU memory optimization
         if device == 'cuda' and TORCH_AVAILABLE and torch.cuda.is_available():
             torch.cuda.empty_cache()
-            print(f"🎮 GPU Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f}GB")
+            print(f"GPU Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f}GB")
         
     def run_experiments(self, num_hands: int = 100):
         """Run real poker tournament experiments with GPU acceleration"""
@@ -436,7 +436,7 @@ class RealPokerExperimentFramework:
         
         # GPU warmup
         if self.device == 'cuda' and TORCH_AVAILABLE and torch.cuda.is_available():
-            print("🔥 Warming up GPU...")
+            print("Warming up GPU...")
             dummy_tensor = torch.randn(1000, 1000, device='cuda')
             _ = torch.matmul(dummy_tensor, dummy_tensor)
             del dummy_tensor
@@ -454,28 +454,40 @@ class RealPokerExperimentFramework:
         config.register_player(name="TightPlayer", algorithm=TightPlayer())
         config.register_player(name="LoosePlayer", algorithm=LoosePlayer())
         
-        print("\n🚀 Starting tournament...")
+        print("\nStarting tournament...")
         start_time = time.time()
         
-        # Run tournament with progress bar
+        # Initialize progress tracking
         if self.progress and TQDM_AVAILABLE:
+            progress_bar = tqdm(total=num_hands, desc="Poker Hands", unit="hands", 
+                              bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}]")
+        else:
+            progress_bar = None
+        
+        # Run tournament with progress tracking
+        if progress_bar:
             print("Progress will be shown during gameplay...")
         
         # Run tournament
         game_result = start_poker(config, verbose=0)
         
+        # Update progress bar if available
+        if progress_bar:
+            progress_bar.update(num_hands)
+            progress_bar.close()
+        
         end_time = time.time()
         duration = end_time - start_time
         hands_per_second = num_hands / duration
         
-        print(f"✅ Tournament completed in {duration:.2f} seconds")
-        print(f"⚡ Performance: {hands_per_second:.1f} hands/second")
+        print(f"Tournament completed in {duration:.2f} seconds")
+        print(f"Performance: {hands_per_second:.1f} hands/second")
         
         # GPU memory cleanup
         if self.device == 'cuda' and TORCH_AVAILABLE and torch.cuda.is_available():
             torch.cuda.empty_cache()
             memory_used = torch.cuda.memory_allocated() / 1e6
-            print(f"🎮 GPU Memory Used: {memory_used:.1f}MB")
+            print(f"GPU Memory Used: {memory_used:.1f}MB")
         
         # Process results
         self._process_tournament_results(game_result)

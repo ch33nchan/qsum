@@ -566,19 +566,27 @@ class RealQuakeExperimentFramework:
         
         # GPU warmup
         if self.device == 'cuda' and TORCH_AVAILABLE and torch.cuda.is_available():
-            print("🔥 Warming up GPU...")
+            print("Warming up GPU...")
             dummy_tensor = torch.randn(1000, 1000, device='cuda')
             _ = torch.matmul(dummy_tensor, dummy_tensor)
             del dummy_tensor
             torch.cuda.empty_cache()
         
-        print("\n🚀 Starting combat episodes...")
+        print("\nStarting combat episodes...")
         start_time = time.time()
         
-        # Use progress bar if available
-        episode_iterator = range(num_episodes)
+        # Initialize detailed progress tracking
         if self.progress and TQDM_AVAILABLE:
-            episode_iterator = tqdm(episode_iterator, desc="Combat Episodes", unit="episode")
+            episode_iterator = tqdm(range(num_episodes), 
+                                  desc="Quake Episodes", 
+                                  unit="ep",
+                                  bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}] K/D: {postfix}",
+                                  postfix="0/0")
+        else:
+            episode_iterator = range(num_episodes)
+            
+        total_kills = 0
+        total_deaths = 0
         
         for episode_num in episode_iterator:
             if not self.progress:
@@ -588,15 +596,17 @@ class RealQuakeExperimentFramework:
                 episode_stats = self._run_single_episode(episode_num)
                 self.quantum_agent.update_episode_result(episode_stats)
                 
-                # Print episode summary
+                # Update totals for progress tracking
+                total_kills += episode_stats['kills']
+                total_deaths += episode_stats['deaths']
+                
+                # Print episode summary or update progress bar
                 if not self.progress:
                     print(f"  Kills: {episode_stats['kills']}, Deaths: {episode_stats['deaths']}")
                     print(f"  Survival: {episode_stats['survival_time']:.1f}s, Encounters: {episode_stats['enemy_encounters']}")
                 elif TQDM_AVAILABLE and hasattr(episode_iterator, 'set_postfix'):
-                    episode_iterator.set_postfix({
-                        'K/D': f"{episode_stats['kills']}/{episode_stats['deaths']}",
-                        'Survival': f"{episode_stats['survival_time']:.1f}s"
-                    })
+                    kd_ratio = total_kills / max(total_deaths, 1)
+                    episode_iterator.set_postfix_str(f"{total_kills}/{total_deaths} (Ratio: {kd_ratio:.2f}) Survival: {episode_stats['survival_time']:.1f}s")
                 
             except Exception as e:
                 if not self.progress:
@@ -606,20 +616,26 @@ class RealQuakeExperimentFramework:
                     'kills': 0, 'deaths': 1, 'survival_time': 1.0,
                     'enemy_encounters': 0, 'damage_dealt': 0, 'damage_taken': 0
                 }
+                total_deaths += 1
                 self.quantum_agent.update_episode_result(episode_stats)
+        
+        # Close progress bar if used
+        if self.progress and TQDM_AVAILABLE and hasattr(episode_iterator, 'close'):
+            episode_iterator.close()
         
         end_time = time.time()
         duration = end_time - start_time
         episodes_per_second = num_episodes / duration
         
-        print(f"\n✅ All episodes completed in {duration:.2f} seconds")
-        print(f"⚡ Performance: {episodes_per_second:.2f} episodes/second")
+        print(f"\nAll episodes completed in {duration:.2f} seconds")
+        print(f"Performance: {episodes_per_second:.2f} episodes/second")
+        print(f"Final Stats: {total_kills} kills, {total_deaths} deaths, K/D ratio: {total_kills/max(total_deaths,1):.2f}")
         
         # GPU memory cleanup
         if self.device == 'cuda' and TORCH_AVAILABLE and torch.cuda.is_available():
             torch.cuda.empty_cache()
             memory_used = torch.cuda.memory_allocated() / 1e6
-            print(f"🎮 GPU Memory Used: {memory_used:.1f}MB")
+            print(f"GPU Memory Used: {memory_used:.1f}MB")
         
         # Generate comprehensive report
         self._generate_report()

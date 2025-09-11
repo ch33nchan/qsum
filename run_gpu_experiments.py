@@ -134,7 +134,7 @@ def run_quake_experiment(args):
 
 def run_benchmark(args):
     """Run comprehensive benchmark across CPU and GPU"""
-    print("\n🚀 Running Comprehensive GPU Benchmark")
+    print("\nRunning Comprehensive GPU Benchmark")
     
     benchmark_results = {
         'timestamp': datetime.now().isoformat(),
@@ -154,11 +154,13 @@ def run_benchmark(args):
         ])
     
     for config in configs:
-        print(f"\n📊 Benchmark: {config['device'].upper()} - Hands: {config['hands']}, Episodes: {config['episodes']}")
+        print(f"\nBenchmark: {config['device'].upper()} - Hands: {config['hands']}, Episodes: {config['episodes']}")
         
-        # Poker benchmark
+        # Enable progress bars for benchmarks
         args.device = config['device']
         args.hands = config['hands']
+        args.progress = True  # Force progress bars for benchmarks
+        
         start_time = time.time()
         run_poker_experiment(args)
         poker_time = time.time() - start_time
@@ -207,7 +209,7 @@ def get_system_info():
 
 def print_benchmark_summary(results):
     """Print benchmark summary"""
-    print("\n📊 BENCHMARK SUMMARY")
+    print("\nBENCHMARK SUMMARY")
     print("=" * 50)
     
     for exp in results['experiments']:
@@ -225,7 +227,7 @@ def print_benchmark_summary(results):
         cpu_time = cpu_results[0]['total_time']
         gpu_time = gpu_results[0]['total_time']
         speedup = cpu_time / gpu_time
-        print(f"\n🚀 GPU Speedup: {speedup:.2f}x faster than CPU")
+        print(f"\nGPU Speedup: {speedup:.2f}x faster than CPU")
 
 def setup_git_repository():
     """Setup git repository with proper configuration"""
@@ -295,7 +297,7 @@ Examples:
     
     args = parser.parse_args()
     
-    print("🚀 GPU-Accelerated Strategic Uncertainty Management")
+    print("GPU-Accelerated Strategic Uncertainty Management")
     print("=" * 55)
     
     # Setup git if requested
@@ -307,10 +309,10 @@ Examples:
     if args.device == 'cuda':
         gpu_available, gpu_info = check_gpu_availability()
         if gpu_available:
-            print(f"✅ GPU Status: {gpu_info}")
+            print(f"GPU Status: {gpu_info}")
             setup_cuda_environment(args.gpu_ids)
         else:
-            print(f"❌ GPU Status: {gpu_info}")
+            print(f"GPU Status: {gpu_info}")
             print("Falling back to CPU mode")
             args.device = 'cpu'
     
