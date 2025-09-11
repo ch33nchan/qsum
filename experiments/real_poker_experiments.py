@@ -472,8 +472,7 @@ class RealPokerExperimentFramework:
         config = setup_config(
             max_round=num_hands,
             initial_stack=1000,
-            small_blind_amount=10,
-            ante_amount=0
+            small_blind_amount=10
         )
         
         # Register players

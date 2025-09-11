@@ -535,6 +535,9 @@ class RealQuakeExperimentFramework:
                 print("🔥 CUDA optimizations enabled")
             print(f"🎮 GPU Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f}GB")
         
+        # Setup headless display for cloud environments
+        self._setup_headless_display()
+        
         # Try to initialize ViZDoom environment
         try:
             self.quake_env = RealQuakeEnvironment()
@@ -630,6 +633,24 @@ class RealQuakeExperimentFramework:
         print(f"K/D Ratio: {summary['combat_performance']['kill_death_ratio']:.2f}")
         print(f"Avg Survival: {summary['combat_performance']['avg_survival_time']:.1f}s")
         print(f"Avg Decision Speed: {summary['spatial_analysis']['avg_decision_speed']:.4f}s")
+    
+    def _setup_headless_display(self):
+        """Setup virtual display for headless environments"""
+        import subprocess
+        import os
+        
+        # Check if we're in a headless environment
+        if 'DISPLAY' not in os.environ:
+            try:
+                # Try to start Xvfb virtual display
+                subprocess.run(['Xvfb', ':99', '-screen', '0', '1024x768x24'], 
+                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, 
+                             timeout=5)
+                os.environ['DISPLAY'] = ':99'
+                print("Virtual display setup for headless environment")
+            except (subprocess.TimeoutExpired, FileNotFoundError):
+                print("Warning: Could not setup virtual display. ViZDoom may fail.")
+                print("Install xvfb: apt-get install xvfb")
     
     def _setup_basic_vizdoom(self) -> bool:
         """Setup basic ViZDoom environment as fallback"""
