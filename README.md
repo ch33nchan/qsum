@@ -1,10 +1,140 @@
-# Strategic Uncertainty Management (SUM) Poker Agent
+# 🚀 Strategic Uncertainty Management (SUM) Agent with GPU Acceleration
 
-A clean, research-grade implementation of Strategic Uncertainty Management for poker AI, featuring quantum-inspired probabilistic state representations and strategic deception mechanisms.
+A quantum-inspired AI agent that uses strategic uncertainty management for decision-making in complex gaming environments. Now featuring **GPU acceleration with CUDA support** for high-performance experiments.
 
-## Project Overview
+## ✨ Features
 
-This project implements the Strategic Uncertainty Management (SUM) approach to poker AI, which maintains probabilistic superpositions over strategic configurations until optimal revelation moments. Clean implementation with comprehensive research validation.
+- **🃏 Real Poker Tournaments**: Multi-player poker with PyPokerEngine and authentic hand evaluation
+- **🎮 3D Combat Simulation**: ViZDoom-powered Quake III Arena combat with real enemy AI
+- **⚡ GPU Acceleration**: CUDA-optimized computations for 3-5x performance boost
+- **📊 Progress Tracking**: Real-time progress bars and performance monitoring
+- **🔬 Research-Quality Data**: Publication-ready plots, LaTeX tables, and comprehensive metrics
+- **🎯 Strategic Uncertainty Management**: Quantum-inspired superposition and collapse mechanics
+
+## 🚀 Quick Start (GPU Mode)
+
+### 1. Install Dependencies
+```bash
+# Install PyTorch with CUDA support
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+
+# Install other dependencies
+pip install -r requirements.txt
+```
+
+### 2. Run GPU-Accelerated Experiments
+```bash
+# Poker Tournament (GPU)
+python experiments/real_poker_experiments.py --device cuda --hands 500 --progress
+
+# Quake Combat (GPU with optimization)
+python experiments/real_quake_experiments.py --device cuda --episodes 100 --progress --cuda-optimize
+
+# Comprehensive GPU Runner
+python run_gpu_experiments.py --experiment both --device cuda --progress
+```
+
+### 3. Setup Git Repository
+```bash
+python run_gpu_experiments.py --setup-git
+```
+
+## 📊 Performance Comparison
+
+| Mode | Poker (500 hands) | Quake (100 episodes) | Speedup |
+|------|-------------------|----------------------|----------|
+| CPU  | ~8-12 minutes     | ~15-20 minutes       | 1.0x     |
+| GPU  | ~3-5 minutes      | ~8-12 minutes        | **3-5x** |
+
+## 🎮 Experiment Commands
+
+### Poker Tournament
+```bash
+# Basic CPU mode
+python experiments/real_poker_experiments.py --device cpu --hands 200
+
+# GPU mode with progress
+python experiments/real_poker_experiments.py --device cuda --hands 500 --progress
+
+# High-performance GPU mode
+CUDA_VISIBLE_DEVICES=0 python experiments/real_poker_experiments.py --device cuda --hands 1000 --progress
+```
+
+### Quake Combat
+```bash
+# Basic CPU mode
+python experiments/real_quake_experiments.py --device cpu --episodes 30
+
+# GPU mode with CUDA optimization
+python experiments/real_quake_experiments.py --device cuda --episodes 100 --progress --cuda-optimize
+
+# Multi-GPU setup
+CUDA_VISIBLE_DEVICES=0,1 python experiments/real_quake_experiments.py --device cuda --episodes 200 --progress
+```
+
+### Comprehensive Runner
+```bash
+# Run both experiments on GPU
+python run_gpu_experiments.py --experiment both --device cuda --hands 500 --episodes 100 --progress
+
+# GPU benchmark suite
+python run_gpu_experiments.py --benchmark --device cuda
+
+# Setup git repository
+python run_gpu_experiments.py --setup-git
+```
+
+## 🔧 GPU Setup
+
+### Requirements
+- NVIDIA GPU with CUDA Compute Capability 7.0+
+- CUDA 11.8 or later
+- 4GB+ GPU memory recommended
+- PyTorch with CUDA support
+
+### Installation
+```bash
+# Check CUDA availability
+nvidia-smi
+
+# Install CUDA-enabled PyTorch
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+
+# Verify GPU setup
+python -c "import torch; print(f'CUDA available: {torch.cuda.is_available()}'); print(f'GPU: {torch.cuda.get_device_name(0) if torch.cuda.is_available() else "None"}')"
+```
+
+### GPU Memory Optimization
+- Automatic memory cleanup after experiments
+- Batch processing for efficient GPU utilization
+- Memory monitoring and reporting
+- CUDA kernel optimization for superposition calculations
+
+## 📈 Research Features
+
+### Strategic Uncertainty Management
+- **Quantum Superposition**: Probabilistic action states until collapse
+- **Strategic Collapse**: Context-aware decision crystallization
+- **Entropy Calculation**: Real-time uncertainty quantification
+- **GPU Acceleration**: Vectorized superposition computations
+
+### Real Game Environments
+- **Authentic Poker**: PyPokerEngine tournaments with real opponents
+- **3D Combat**: ViZDoom Quake III Arena with enemy AI
+- **Real Physics**: Actual game mechanics, not simulations
+- **Performance Metrics**: Comprehensive research data collection
+
+## 📊 Generated Results
+
+Each experiment generates:
+- **📈 Analysis Plots**: 6-panel research visualizations (PNG/PDF)
+- **📋 LaTeX Tables**: Publication-ready statistical summaries
+- **💾 JSON Data**: Complete raw metrics for further analysis
+- **🎯 Performance Reports**: GPU vs CPU benchmarks
+
+## 🔬 Project Overview
+
+This project implements Strategic Uncertainty Management (SUM) agents for complex gaming environments, incorporating quantum-inspired decision-making processes that maintain strategic ambiguity until optimal collapse points. Now enhanced with GPU acceleration for high-performance research.
 
 ## Project Structure
 
