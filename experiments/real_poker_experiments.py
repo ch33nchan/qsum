@@ -283,8 +283,14 @@ class QuantumPokerPlayer(BasePokerPlayer):
     def _calculate_strategic_entropy(self) -> float:
         """Calculate strategic entropy of current superposition"""
         amplitudes = self.superposition_state['amplitudes']
-        entropy = -sum(a * np.log2(a + 1e-10) for a in amplitudes if a > 0)
-        return entropy
+        # Ensure amplitudes is a flat list of numbers
+        if isinstance(amplitudes, list) and len(amplitudes) > 0:
+            # Flatten if nested and convert to float
+            flat_amplitudes = [float(a) for a in amplitudes if isinstance(a, (int, float))]
+            if flat_amplitudes:
+                entropy = -sum(a * np.log2(a + 1e-10) for a in flat_amplitudes if a > 0)
+                return entropy
+        return 1.0  # Default entropy if amplitudes are invalid
     
     def _should_collapse(self, hand_strength, pot_odds, entropy) -> Tuple[bool, str]:
         """Determine if superposition should collapse"""
