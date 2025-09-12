@@ -130,7 +130,8 @@ class QuantumPokerPlayer(BasePokerPlayer):
         self.metrics['hand_strengths'].append(hand_strength)
         self.metrics['pot_odds_history'].append(pot_odds)
         
-        return action_info
+        # Return action and amount as expected by PyPokerEngine
+        return action_info['action'], action_info['amount']
     
     def _calculate_position_factor(self, round_state) -> float:
         """Calculate position advantage factor"""
@@ -201,7 +202,7 @@ class QuantumPokerPlayer(BasePokerPlayer):
             recent_wins = self.metrics['hands_won']
             self.recent_win_rate = recent_wins / recent_hands
         else:
-            self.recent_win_rate = 0.5['action'], action_info['amount']
+            self.recent_win_rate = 0.5
     
     def _calculate_hand_strength(self, hole_card, round_state) -> float:
         """Calculate hand strength using Treys evaluator"""
