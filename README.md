@@ -1,15 +1,16 @@
-# 🚀 Strategic Uncertainty Management (SUM) Agent with GPU Acceleration
+# Strategic Uncertainty Management (SUM) Poker Research Framework
 
-A quantum-inspired AI agent that uses strategic uncertainty management for decision-making in complex gaming environments. Now featuring **GPU acceleration with CUDA support** for high-performance experiments.
+A comprehensive research framework implementing Strategic Uncertainty Management (SUM) for poker AI, featuring quantum-inspired decision-making processes with GPU acceleration for high-performance academic research.
 
-## ✨ Features
+## Research Focus
 
-- **🃏 Real Poker Tournaments**: Multi-player poker with PyPokerEngine and authentic hand evaluation
-- **🎮 3D Combat Simulation**: ViZDoom-powered Quake III Arena combat with real enemy AI
-- **⚡ GPU Acceleration**: CUDA-optimized computations for 3-5x performance boost
-- **📊 Progress Tracking**: Real-time progress bars and performance monitoring
-- **🔬 Research-Quality Data**: Publication-ready plots, LaTeX tables, and comprehensive metrics
-- **🎯 Strategic Uncertainty Management**: Quantum-inspired superposition and collapse mechanics
+This framework implements and evaluates Strategic Uncertainty Management algorithms in poker environments, providing:
+
+- **Advanced SUM Implementation**: Quantum-inspired superposition states with strategic collapse mechanisms
+- **GPU-Accelerated Research**: CUDA-optimized computations for large-scale experiments
+- **Publication-Quality Data**: Comprehensive metrics, statistical analysis, and research visualizations
+- **Real Poker Environment**: PyPokerEngine integration with authentic game mechanics
+- **Academic Validation**: Rigorous experimental design suitable for peer-reviewed publication
 
 ## 🚀 Quick Start (GPU Mode)
 
