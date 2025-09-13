@@ -18,12 +18,21 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Dict, List, Tuple
 from scipy import stats
 import subprocess
 import warnings
 warnings.filterwarnings('ignore')
+
+# Progress bar support
+try:
+    from tqdm import tqdm
+    TQDM_AVAILABLE = True
+except ImportError:
+    TQDM_AVAILABLE = False
+    def tqdm(iterable, *args, **kwargs):
+        return iterable
 
 class FinalSUMResearch:
     """Comprehensive SUM Poker Research Pipeline"""
@@ -32,6 +41,13 @@ class FinalSUMResearch:
         self.timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         self.results_dir = f"final_results_{self.timestamp}"
         os.makedirs(self.results_dir, exist_ok=True)
+        
+        # Progress tracking
+        self.study_start_time = None
+        self.phase_start_times = {}
+        self.experiment_durations = []
+        self.total_experiments = 0
+        self.completed_experiments = 0
         
         # Research configuration
         self.phases = {
@@ -76,6 +92,48 @@ class FinalSUMResearch:
         
         self.all_results = []
         self.phase_results = {}
+        
+        # Calculate total experiments
+        self.total_experiments = sum(len(phase['experiments']) for phase in self.phases.values())
+    
+    def _calculate_eta(self) -> str:
+        """Calculate estimated time of arrival for study completion"""
+        if self.completed_experiments == 0 or not self.experiment_durations:
+            return "Calculating..."
+        
+        # Average time per experiment
+        avg_duration = np.mean(self.experiment_durations)
+        
+        # Remaining experiments
+        remaining = self.total_experiments - self.completed_experiments
+        
+        # Estimated remaining time
+        eta_seconds = remaining * avg_duration
+        eta_time = datetime.now() + timedelta(seconds=eta_seconds)
+        
+        # Format ETA
+        if eta_seconds < 3600:  # Less than 1 hour
+            return f"{eta_seconds/60:.0f}m (ETA: {eta_time.strftime('%H:%M')})"
+        else:  # More than 1 hour
+            hours = eta_seconds // 3600
+            minutes = (eta_seconds % 3600) // 60
+            return f"{hours:.0f}h {minutes:.0f}m (ETA: {eta_time.strftime('%H:%M')})"
+    
+    def _update_progress(self, experiment_name: str, duration: float):
+        """Update progress tracking"""
+        self.completed_experiments += 1
+        self.experiment_durations.append(duration)
+        
+        # Keep only recent durations for better ETA estimation
+        if len(self.experiment_durations) > 10:
+            self.experiment_durations = self.experiment_durations[-10:]
+        
+        # Progress percentage
+        progress_pct = (self.completed_experiments / self.total_experiments) * 100
+        eta = self._calculate_eta()
+        
+        print(f"\n[PROGRESS] {self.completed_experiments}/{self.total_experiments} ({progress_pct:.1f}%) | ETA: {eta}")
+        print(f"[TIMING] {experiment_name}: {duration:.1f}s | Avg: {np.mean(self.experiment_durations):.1f}s")
         
     def run_single_experiment(self, experiment: Dict, phase: str) -> Dict:
         """Run a single poker experiment"""
@@ -126,6 +184,9 @@ class FinalSUMResearch:
         with open(result_file, 'w') as f:
             json.dump(experiment_result, f, indent=2)
         
+        # Update progress tracking
+        self._update_progress(experiment['name'], duration)
+        
         return experiment_result
     
     def run_phase(self, phase_name: str) -> List[Dict]:
@@ -138,19 +199,41 @@ class FinalSUMResearch:
         phase_results = []
         total_experiments = len(phase['experiments'])
         
-        for i, experiment in enumerate(phase['experiments'], 1):
-            print(f"\n[{i}/{total_experiments}] {experiment['name']}")
-            print("-" * 50)
+        # Create progress bar for this phase if available
+        if TQDM_AVAILABLE:
+            experiment_iterator = tqdm(
+                enumerate(phase['experiments'], 1),
+                total=total_experiments,
+                desc=f"{phase_name.title()} Phase",
+                unit="exp",
+                bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}] {desc}"
+            )
+        else:
+            experiment_iterator = enumerate(phase['experiments'], 1)
+        
+        for i, experiment in experiment_iterator:
+            if not TQDM_AVAILABLE:
+                print(f"\n[{i}/{total_experiments}] {experiment['name']}")
+                print("-" * 50)
             
             result = self.run_single_experiment(experiment, phase_name)
             phase_results.append(result)
             
-            if result['success']:
-                print(f"SUCCESS: {result['win_rate']:.1f}% win rate, "
-                      f"{result['total_winnings']} winnings, "
-                      f"{result['hands_per_second']:.1f} hands/s")
-            else:
-                print(f"FAILED: {result['output'][:200]}...")
+            # Update progress bar description with results
+            if TQDM_AVAILABLE and hasattr(experiment_iterator, 'set_postfix'):
+                if result['success']:
+                    experiment_iterator.set_postfix_str(
+                        f"Win Rate: {result['win_rate']:.1f}% | Speed: {result['hands_per_second']:.0f} h/s"
+                    )
+                else:
+                    experiment_iterator.set_postfix_str("FAILED")
+            elif not TQDM_AVAILABLE:
+                if result['success']:
+                    print(f"SUCCESS: {result['win_rate']:.1f}% win rate, "
+                          f"{result['total_winnings']} winnings, "
+                          f"{result['hands_per_second']:.1f} hands/s")
+                else:
+                    print(f"FAILED: {result['output'][:200]}...")
         
         self.phase_results[phase_name] = phase_results
         return phase_results
@@ -482,16 +565,46 @@ The SUM algorithm demonstrates scalability across different dataset sizes:
         print(f"Study ID: {self.timestamp}")
         print(f"Results Directory: {self.results_dir}")
         print(f"Estimated Duration: 3-4 hours")
-        print(f"Total Experiments: {sum(len(phase['experiments']) for phase in self.phases.values())}")
+        print(f"Total Experiments: {self.total_experiments}")
+        print(f"Progress Tracking: {'Enabled' if TQDM_AVAILABLE else 'Basic'}")
         
-        start_time = time.time()
+        # Initialize timing
+        self.study_start_time = time.time()
+        start_time = self.study_start_time
+        
+        # Create overall progress bar if available
+        phase_names = ['pretraining', 'training', 'testing', 'validation']
+        if TQDM_AVAILABLE:
+            overall_progress = tqdm(
+                total=self.total_experiments,
+                desc="Overall Study Progress",
+                unit="exp",
+                bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}] {desc}"
+            )
         
         # Run all phases
-        for phase_name in ['pretraining', 'training', 'testing', 'validation']:
+        for phase_name in phase_names:
             phase_start = time.time()
+            self.phase_start_times[phase_name] = phase_start
+            
+            print(f"\n{'='*60}")
+            print(f"STARTING PHASE: {phase_name.upper()}")
+            print(f"{'='*60}")
+            
             self.run_phase(phase_name)
+            
             phase_duration = time.time() - phase_start
             print(f"\n{phase_name.title()} phase completed in {phase_duration/60:.1f} minutes")
+            
+            # Update overall progress bar
+            if TQDM_AVAILABLE:
+                phase_experiments = len(self.phases[phase_name]['experiments'])
+                overall_progress.update(phase_experiments)
+                overall_progress.set_postfix_str(f"Phase: {phase_name.title()} Complete")
+        
+        # Close overall progress bar
+        if TQDM_AVAILABLE:
+            overall_progress.close()
         
         # Generate comprehensive analysis
         analysis, df = self.generate_comprehensive_analysis()
