@@ -24,6 +24,9 @@ from scipy import stats
 import warnings
 warnings.filterwarnings('ignore')
 
+# Import SUM Algorithm Core
+from sum_algorithm_core import SUMAlgorithmCore
+
 # GPU and progress bar support
 try:
     import torch
@@ -48,20 +51,25 @@ from pypokerengine.utils.card_utils import gen_cards, estimate_hole_card_win_rat
 from pypokerengine.engine.hand_evaluator import HandEvaluator
 from treys import Card, Evaluator
 
-class QuantumPokerPlayer(BasePokerPlayer):
-    """Strategic Uncertainty Management (SUM) Poker Player with Advanced GPU Acceleration
+class QuantumPokerPlayer(BasePokerPlayer, SUMAlgorithmCore):
+    """Strategic Uncertainty Management (SUM) Poker Player
     
-    Implements quantum-inspired superposition states for strategic decision making,
-    featuring dynamic collapse mechanisms and entropy-based uncertainty management.
+    Implements rigorous Strategic Uncertainty Management algorithms for poker decision-making.
+    Core principles:
+    1. Superposition State Maintenance: Multiple strategic options maintained simultaneously
+    2. Information-Theoretic Collapse: Strategic decisions based on entropy thresholds
+    3. Adaptive Uncertainty Management: Dynamic threshold adjustment based on game state
+    4. Opponent Modeling: Bayesian inference for opponent strategy estimation
     """
     
-    def __init__(self, name: str = "SUM_Agent", device: str = 'cpu'):
+    def __init__(self, name: str = "SUM_Agent", device: str = 'cpu', mode: str = 'sum_final'):
         super().__init__()
         self.name = name
         self.device = device
+        self.mode = mode
         self.evaluator = Evaluator()
         
-        # Advanced GPU setup
+        # GPU acceleration setup
         if device == 'cuda' and TORCH_AVAILABLE and torch.cuda.is_available():
             self.use_gpu = True
             self.gpu_device = torch.device('cuda')
@@ -70,37 +78,57 @@ class QuantumPokerPlayer(BasePokerPlayer):
             self.use_gpu = False
             self.gpu_device = torch.device('cpu')
             if device == 'cuda':
-                print(f"[SUM] WARNING: {name} falling back to CPU (CUDA not available)")
+                print(f"[SUM] WARNING: {name} falling back to CPU")
         
-        # Advanced Strategic Uncertainty Management state
-        self.superposition_state = {
-            'betting_actions': ['fold', 'call', 'raise'],
-            'amplitudes': [0.33, 0.33, 0.34],  # [fold, call, raise] probabilities
-            'phase_relationships': [0.0, np.pi/3, 2*np.pi/3],
-            'coherence_time': 5,  # Superposition coherence duration
-            'collapse_threshold': 0.75,  # Threshold for strategic collapse
-            'decoherence_rate': 0.1,  # Rate of quantum decoherence
-            'entanglement_strength': 0.0  # Opponent modeling entanglement
+        # Core SUM Algorithm Parameters
+        self.sum_parameters = {
+            'base_collapse_threshold': 0.75,
+            'adaptive_learning_rate': 0.01,
+            'entropy_window_size': 10,
+            'opponent_model_decay': 0.95,
+            'uncertainty_exploration_rate': 0.15,
+            'strategic_coherence_time': 5
         }
         
-        # Advanced performance tracking for research
-        self.metrics = {
+        # Strategic Uncertainty Management State
+        self.superposition_state = {
+            'action_amplitudes': np.array([0.33, 0.33, 0.34]),  # [fold, call, raise]
+            'phase_relationships': np.array([0.0, np.pi/3, 2*np.pi/3]),
+            'coherence_time': 0.0,
+            'collapse_threshold': self.sum_parameters['base_collapse_threshold'],
+            'entropy_history': [],
+            'decision_count': 0,
+            'last_collapse_trigger': None
+        }
+        
+        # Opponent Modeling System
+        self.opponent_models = {
+            'aggression_levels': defaultdict(lambda: 0.5),  # Player aggression estimates
+            'bluff_frequencies': defaultdict(lambda: 0.1),  # Bluff frequency estimates
+            'fold_thresholds': defaultdict(lambda: 0.3),   # Fold threshold estimates
+            'betting_patterns': defaultdict(list),          # Historical betting patterns
+            'hand_strength_estimates': defaultdict(list)   # Estimated hand strengths
+        }
+        
+        # Research Metrics for Academic Validation
+        self.research_metrics = {
             'hands_played': 0,
             'hands_won': 0,
             'total_winnings': 0,
-            'bluffs_attempted': 0,
-            'bluffs_successful': 0,
-            'superposition_collapses': defaultdict(int),
             'decision_times': [],
-            'hand_strengths': [],
-            'pot_odds_history': [],
-            'strategic_entropies': [],
-            'collapse_triggers': defaultdict(int),
             'entropy_evolution': [],
-            'strategic_adaptations': 0
+            'collapse_triggers': defaultdict(int),
+            'superposition_maintenance_time': [],
+            'opponent_model_accuracy': [],
+            'strategic_adaptations': 0,
+            'uncertainty_utilization_rate': 0.0,
+            'information_gain_per_decision': [],
+            'bluff_success_rate': 0.0,
+            'adaptive_threshold_changes': 0
         }
         
-        # SUM-specific research metrics
+        # Legacy metrics for compatibility
+        self.metrics = self.research_metrics
         self.sum_metrics = {
             'quantum_coherence_maintained': 0,
             'strategic_uncertainty_utilized': 0,
@@ -122,13 +150,11 @@ class QuantumPokerPlayer(BasePokerPlayer):
         pot_odds = self._calculate_pot_odds(round_state)
         
         # Strategic Uncertainty Management decision
-        action_info = self._quantum_decision_process(valid_actions, hand_strength, pot_odds, round_state)
+        action_info = self._sum_decision_process(valid_actions, hand_strength, pot_odds, round_state)
         
         # Record metrics
         decision_time = time.time() - start_time
-        self.metrics['decision_times'].append(decision_time)
-        self.metrics['hand_strengths'].append(hand_strength)
-        self.metrics['pot_odds_history'].append(pot_odds)
+        self.research_metrics['decision_times'].append(decision_time)
         
         # Return action and amount as expected by PyPokerEngine
         return action_info['action'], action_info['amount']
@@ -293,92 +319,94 @@ class QuantumPokerPlayer(BasePokerPlayer):
         except:
             return 0.3  # Default pot odds
     
-    def _quantum_decision_process(self, valid_actions, hand_strength, pot_odds, round_state) -> Dict:
-        """Advanced Strategic Uncertainty Management Decision Process
+    def _sum_decision_process(self, valid_actions, hand_strength, pot_odds, round_state) -> Dict:
+        """Core Strategic Uncertainty Management Decision Process
         
-        Implements quantum-inspired superposition maintenance with strategic collapse
-        based on information theory and game-theoretic principles.
+        Implements the SUM algorithm with rigorous mathematical foundations:
+        1. Superposition state evolution based on information theory
+        2. Entropy-driven collapse conditions with adaptive thresholds
+        3. Bayesian opponent modeling for strategic adaptation
+        4. Information-theoretic decision optimization
         """
         start_time = time.time()
         
-        # Update superposition state with opponent modeling
-        self._update_superposition_state(hand_strength, pot_odds, round_state)
+        # Phase 1: Update superposition state with current game information
+        self._evolve_superposition_state(hand_strength, pot_odds, round_state)
         
-        # Calculate multi-dimensional strategic entropy
-        entropy = self._calculate_strategic_entropy()
-        self.metrics['strategic_entropies'].append(entropy)
-        self.sum_metrics['entropy_variance'] = np.var(self.metrics['strategic_entropies'][-10:]) if len(self.metrics['strategic_entropies']) >= 10 else 0.0
+        # Phase 2: Calculate strategic entropy and information gain
+        current_entropy = self._calculate_information_entropy()
+        information_gain = self._calculate_information_gain(current_entropy)
         
-        # Advanced collapse condition analysis
-        should_collapse, trigger, confidence = self._should_collapse_advanced(hand_strength, pot_odds, entropy, round_state)
+        # Phase 3: Update opponent models with Bayesian inference
+        self._update_opponent_models(round_state)
         
+        # Phase 4: Determine collapse conditions using information theory
+        should_collapse, collapse_trigger, collapse_confidence = self._evaluate_collapse_conditions(
+            hand_strength, pot_odds, current_entropy, round_state
+        )
+        
+        # Phase 5: Execute decision based on SUM algorithm
         if should_collapse:
-            # Strategic collapse with uncertainty preservation
-            action_info = self._execute_strategic_collapse(valid_actions, hand_strength, pot_odds, trigger)
-            self.metrics['superposition_collapses'][trigger] += 1
-            self.metrics['collapse_triggers'][trigger] += 1
-            self.sum_metrics['collapse_efficiency'] = confidence
+            action_info = self._execute_informed_collapse(
+                valid_actions, hand_strength, pot_odds, collapse_trigger, round_state
+            )
+            self.research_metrics['collapse_triggers'][collapse_trigger] += 1
         else:
-            # Maintain superposition with strategic uncertainty
-            action_info = self._superposition_decision(valid_actions, hand_strength, pot_odds)
-            self.sum_metrics['quantum_coherence_maintained'] += 1
-            self.sum_metrics['strategic_uncertainty_utilized'] += 1
+            action_info = self._maintain_superposition_decision(
+                valid_actions, hand_strength, pot_odds, round_state
+            )
+            self.research_metrics['uncertainty_utilization_rate'] += 1
         
-        # Advanced performance tracking
+        # Phase 6: Update research metrics and learning parameters
         decision_time = time.time() - start_time
-        self.metrics['entropy_evolution'].append(entropy)
-        
-        # Update SUM research metrics
-        self._update_sum_research_metrics(action_info, entropy, decision_time)
+        self._update_research_metrics(action_info, current_entropy, information_gain, decision_time)
         
         return action_info
     
-    def _update_superposition_state(self, hand_strength, pot_odds, round_state=None):
-        """Advanced superposition state update with opponent modeling"""
-        # Enhanced CPU-based calculation with strategic depth
-        
-        # Get current street for position-aware decisions
-        street = round_state.get('street', 'preflop') if round_state else 'preflop'
-        position_factor = self._calculate_position_factor(round_state) if round_state else 0.5
-        
-        # Advanced amplitude calculation with multiple factors
-        if hand_strength > 0.8:  # Premium hands
-            base_amplitudes = [0.05, 0.15, 0.8]  # Heavily favor raise
-            # Adjust for position and street
-            if position_factor > 0.7:  # Late position
-                base_amplitudes[2] += 0.1  # More aggressive
-                base_amplitudes[0] -= 0.05
-        elif hand_strength > 0.6:  # Strong hands
-            base_amplitudes = [0.15, 0.5, 0.35]
-            if pot_odds < 0.25:
-                base_amplitudes[1] += 0.2  # Favor call with good odds
-                base_amplitudes[0] -= 0.1
-        elif hand_strength > 0.4:  # Medium hands
-            if pot_odds < 0.3:
-                base_amplitudes = [0.2, 0.6, 0.2]  # Favor call
-            else:
-                base_amplitudes = [0.6, 0.3, 0.1]  # Lean fold
-        else:  # Weak hands
-            bluff_probability = self._calculate_bluff_probability(hand_strength, position_factor, street)
-            if np.random.random() < bluff_probability:
-                base_amplitudes = [0.2, 0.1, 0.7]  # Strategic bluff
-                self.metrics['bluffs_attempted'] += 1
-            else:
-                base_amplitudes = [0.8, 0.15, 0.05]  # Mostly fold
-        
-        # Normalize amplitudes
-        total = sum(base_amplitudes)
-        self.superposition_state['amplitudes'] = [a/total for a in base_amplitudes]
-        
-        # Update phase relationships for quantum coherence
-        self.superposition_state['phase_relationships'] = [
-            0.0, 
-            np.pi/3 + hand_strength * np.pi/6,
-            2*np.pi/3 + pot_odds * np.pi/6
-        ]
-        
-        # Update entanglement strength based on opponent modeling
-        self.superposition_state['entanglement_strength'] = min(0.5, hand_strength * pot_odds)
+    def _evolve_superposition_state(self, hand_strength, pot_odds, round_state):
+         """Evolve superposition state using information-theoretic principles"""
+         # Calculate position and street factors
+         position_factor = self._calculate_position_factor(round_state)
+         street = round_state.get('street', 'preflop') if round_state else 'preflop'
+         
+         # Information-theoretic amplitude calculation
+         information_content = self._calculate_information_content(hand_strength, pot_odds, position_factor)
+         
+         # Base amplitudes from game-theoretic optimal strategy
+         if hand_strength > 0.85:  # Premium hands (top 15%)
+             base_amplitudes = np.array([0.05, 0.15, 0.80])  # Aggressive value betting
+         elif hand_strength > 0.65:  # Strong hands (top 35%)
+             base_amplitudes = np.array([0.10, 0.60, 0.30])  # Balanced approach
+         elif hand_strength > 0.35:  # Medium hands (top 65%)
+             # Pot odds dependent strategy
+             if pot_odds < 0.25:  # Good odds
+                 base_amplitudes = np.array([0.20, 0.70, 0.10])
+             else:  # Poor odds
+                 base_amplitudes = np.array([0.70, 0.25, 0.05])
+         else:  # Weak hands (bottom 35%)
+             # Strategic bluffing based on position and opponents
+             bluff_frequency = self._calculate_optimal_bluff_frequency(position_factor, street)
+             if np.random.random() < bluff_frequency:
+                 base_amplitudes = np.array([0.15, 0.10, 0.75])  # Bluff raise
+             else:
+                 base_amplitudes = np.array([0.90, 0.08, 0.02])  # Fold
+         
+         # Apply information-theoretic adjustments
+         adjusted_amplitudes = base_amplitudes * (1 + information_content * 0.1)
+         
+         # Normalize to maintain probability distribution
+         self.superposition_state['action_amplitudes'] = adjusted_amplitudes / np.sum(adjusted_amplitudes)
+         
+         # Update phase relationships based on strategic coherence
+         self.superposition_state['phase_relationships'] = np.array([
+             0.0,
+             np.pi/3 + hand_strength * np.pi/6,
+             2*np.pi/3 + pot_odds * np.pi/6
+         ])
+         
+         # Update coherence time
+         self.superposition_state['coherence_time'] += 1
+         self.superposition_state['decision_count'] += 1
     
     def _calculate_strategic_entropy(self) -> float:
         """Calculate strategic entropy of current superposition"""
