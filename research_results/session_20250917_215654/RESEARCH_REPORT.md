@@ -1,27 +1,28 @@
 
 # SUM Poker Agent Research Pipeline Report
 
-**Session ID:** 20250917_211253
-**Execution Date:** 2025-09-17 21:13:19
-**Total Duration:** 26.52 seconds (0.01 hours)
+**Session ID:** 20250917_215654
+**Execution Date:** 2025-09-17 21:57:14
+**Total Duration:** 20.72 seconds (0.01 hours)
 
 ## Pipeline Summary
 
 **Phases Completed:** 1/1
-**Completed Phases:** cpu_experiments
+**Completed Phases:** benchmark_gauntlet
 **Errors Encountered:** 0
 
 ## Phase Results
 
-### Cpu Experiments
-- Duration: 25.26s
-- Commitment Beneficial: False
-- Deception Beneficial: False
+### Benchmark Gauntlet
+- Duration: 19.80s
+- Average mBB/100: 0.00
+- Win Rate vs Baselines: 0.0%
+- Significant Wins: 0
 
 
 ## Files Generated
 
-**Session Directory:** `research_results/session_20250917_211253`
+**Session Directory:** `research_results/session_20250917_215654`
 
 - Pipeline Summary: `pipeline_summary.json`
 - Training Logs: `training_logs/`

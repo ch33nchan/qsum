@@ -71,7 +71,7 @@ class ResearchPipelineManager:
                 'num_trials': 3,
                 'generate_plots': True
             },
-            'phases_to_run': ['gpu_training', 'cpu_experiments', 'benchmark_gauntlet', 'analysis'],
+            'phases_to_run': ['gpu_training', 'benchmark_gauntlet', 'analysis'],
             'results_dir': 'research_results',
             'save_checkpoints': True,
             'validate_environment': True
@@ -208,49 +208,7 @@ class ResearchPipelineManager:
                 'timestamp': time.time()
             })
     
-    def _run_cpu_experiments_phase(self):
-        logger.info("Starting CPU experiments phase")
-        
-        phase_start = time.time()
-        
-        try:
-            cpu_results_dir = self.session_dir / 'cpu_experiments'
-            cpu_results_dir.mkdir(exist_ok=True)
-            
-            # Use the fixed CPU experiments
-            from experiments.cpu_experiments import run_cpu_experiments
-            cpu_results = run_cpu_experiments()
-            
-            if cpu_results:
-                # Save results to the session directory
-                with open(cpu_results_dir / "results.json", 'w') as f:
-                    json.dump(cpu_results, f, indent=2, default=str)
-                
-                phase_duration = time.time() - phase_start
-                
-                self.pipeline_results['phase_results']['cpu_experiments'] = {
-                    'experiment_results': cpu_results,
-                    'phase_duration': phase_duration,
-                    'results_directory': str(cpu_results_dir)
-                }
-                
-                self.pipeline_results['phases_completed'].append('cpu_experiments')
-                
-                logger.info(f"CPU experiments phase completed in {phase_duration:.2f}s")
-                
-                # Log summary
-                summary = cpu_results.get('summary', {}) if cpu_results else {}
-                logger.info(f"Successful experiments: {summary.get('successful_experiments', 0)}/{summary.get('total_experiments', 0)}")
-            else:
-                raise Exception("CPU experiments returned no results")
-            
-        except Exception as e:
-            logger.error(f"CPU experiments phase failed: {e}")
-            self.pipeline_results['errors'].append({
-                'phase': 'cpu_experiments',
-                'error': str(e),
-                'timestamp': time.time()
-            })
+
     
     def _run_benchmark_gauntlet_phase(self):
         logger.info("Starting benchmark gauntlet phase")
