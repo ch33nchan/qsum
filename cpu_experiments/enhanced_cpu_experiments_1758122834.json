@@ -1,0 +1,1595 @@
+{
+  "timestamp": 1758122822.22853,
+  "experiments": [
+    {
+      "experiment_type": "comprehensive_ablation_study",
+      "configurations": {
+        "optimal_full_sum": {
+          "config": {
+            "name": "optimal_full_sum",
+            "num_strategies": 6,
+            "lambda_commitment": 0.1,
+            "lambda_deception": 0.05
+          },
+          "trial_scores": [
+            0.5779744318528196,
+            0.5849740775095973,
+            0.5850377585740181,
+            0.5901979985054678,
+            0.5885974625394749,
+            0.5582822312516599,
+            0.5875598008715408,
+            0.6034434943118364,
+            0.5878800194720607,
+            0.5969725802548553
+          ],
+          "mean_score": 0.5860919855143332,
+          "std_score": 0.011356006018700406,
+          "sem_score": 0.0037853353395668012,
+          "confidence_interval_95": [
+            0.5775289620621273,
+            0.594655008966539
+          ],
+          "trial_details": [
+            {
+              "avg_score": 0.5779744318528196,
+              "score_std": 0.12470162522275349,
+              "score_range": [
+                0.32386721029240567,
+                0.8402667653271833
+              ],
+              "action_distribution": {
+                "fold": 23,
+                "call": 58,
+                "raise": 19,
+                "check": 0
+              },
+              "aggression_rate": 0.19,
+              "total_scenarios": 100,
+              "sample_decisions": [
+                {
+                  "action": "raise",
+                  "amount": 6,
+                  "scenario_type": "early_position"
+                },
+                {
+                  "action": "fold",
+                  "amount": 0,
+                  "scenario_type": "late_position"
+                },
+                {
+                  "action": "call",
+                  "amount": 4,
+                  "scenario_type": "short_stack"
+                },
+                {
+                  "action": "call",
+                  "amount": 5,
+                  "scenario_type": "deep_stack"
+                },
+                {
+                  "action": "call",
+                  "amount": 6,
+                  "scenario_type": "heads_up"
+                }
+              ]
+            },
+            {
+              "avg_score": 0.5849740775095973,
+              "score_std": 0.11916067657071971,
+              "score_range": [
+                0.3585422729777352,
+                0.8550040762524508
+              ],
+              "action_distribution": {
+                "fold": 24,
+                "call": 58,
+                "raise": 18,
+                "check": 0
+              },
+              "aggression_rate": 0.18,
+              "total_scenarios": 100,
+              "sample_decisions": [
+                {
+                  "action": "raise",
+                  "amount": 6,
+                  "scenario_type": "early_position"
+                },
+                {
+                  "action": "call",
+                  "amount": 3,
+                  "scenario_type": "late_position"
+                },
+                {
+                  "action": "call",
+                  "amount": 4,
+                  "scenario_type": "short_stack"
+                },
+                {
+                  "action": "fold",
+                  "amount": 0,
+                  "scenario_type": "deep_stack"
+                },
+                {
+                  "action": "call",
+                  "amount": 6,
+                  "scenario_type": "heads_up"
+                }
+              ]
+            },
+            {
+              "avg_score": 0.5850377585740181,
+              "score_std": 0.13103400301200288,
+              "score_range": [
+                0.3296016611383023,
+                0.9241662495682409
+              ],
+              "action_distribution": {
+                "fold": 27,
+                "call": 44,
+                "raise": 29,
+                "check": 0
+              },
+              "aggression_rate": 0.29,
+              "total_scenarios": 100,
+              "sample_decisions": [
+                {
+                  "action": "call",
+                  "amount": 2,
+                  "scenario_type": "early_position"
+                },
+                {
+                  "action": "call",
+                  "amount": 3,
+                  "scenario_type": "late_position"
+                },
+                {
+                  "action": "raise",
+                  "amount": 8,
+                  "scenario_type": "short_stack"
+                },
+                {
+                  "action": "fold",
+                  "amount": 0,
+                  "scenario_type": "deep_stack"
+                },
+                {
+                  "action": "call",
+                  "amount": 6,
+                  "scenario_type": "heads_up"
+                }
+              ]
+            }
+          ]
+        },
+        "optimal_no_commitment": {
+          "config": {
+            "name": "optimal_no_commitment",
+            "num_strategies": 6,
+            "lambda_commitment": 0.0,
+            "lambda_deception": 0.05
+          },
+          "trial_scores": [
+            0.5876561438277732,
+            0.5731825525296498,
+            0.5857219461989345,
+            0.5609795955479161,
+            0.6028917216311496,
+            0.6027872717464087,
+            0.5939148517499736,
+            0.5819402114317838,
+            0.5990130742692936,
+            0.602818258598214
+          ],
+          "mean_score": 0.5890905627531098,
+          "std_score": 0.013401773694536722,
+          "sem_score": 0.004467257898178907,
+          "confidence_interval_95": [
+            0.5789849233004278,
+            0.5991962022057917
+          ],
+          "trial_details": [
+            {
+              "avg_score": 0.5876561438277732,
+              "score_std": 0.12604186685059007,
+              "score_range": [
+                0.3494078284689553,
+                0.8568134014674762
+              ],
+              "action_distribution": {
+                "fold": 23,
+                "call": 50,
+                "raise": 27,
+                "check": 0
+              },
+              "aggression_rate": 0.27,
+              "total_scenarios": 100,
+              "sample_decisions": [
+                {
+                  "action": "raise",
+                  "amount": 6,
+                  "scenario_type": "early_position"
+                },
+                {
+                  "action": "call",
+                  "amount": 3,
+                  "scenario_type": "late_position"
+                },
+                {
+                  "action": "fold",
+                  "amount": 0,
+                  "scenario_type": "short_stack"
+                },
+                {
+                  "action": "fold",
+                  "amount": 0,
+                  "scenario_type": "deep_stack"
+                },
+                {
+                  "action": "call",
+                  "amount": 6,
+                  "scenario_type": "heads_up"
+                }
+              ]
+            },
+            {
+              "avg_score": 0.5731825525296498,
+              "score_std": 0.1275038477650314,
+              "score_range": [
+                0.3130591612901031,
+                0.7765604534573791
+              ],
+              "action_distribution": {
+                "fold": 30,
+                "call": 49,
+                "raise": 21,
+                "check": 0
+              },
+              "aggression_rate": 0.21,
+              "total_scenarios": 100,
+              "sample_decisions": [
+                {
+                  "action": "call",
+                  "amount": 2,
+                  "scenario_type": "early_position"
+                },
+                {
+                  "action": "fold",
+                  "amount": 0,
+                  "scenario_type": "late_position"
+                },
+                {
+                  "action": "call",
+                  "amount": 4,
+                  "scenario_type": "short_stack"
+                },
+                {
+                  "action": "call",
+                  "amount": 5,
+                  "scenario_type": "deep_stack"
+                },
+                {
+                  "action": "fold",
+                  "amount": 0,
+                  "scenario_type": "heads_up"
+                }
+              ]
+            },
+            {
+              "avg_score": 0.5857219461989345,
+              "score_std": 0.12710419283992266,
+              "score_range": [
+                0.3199640804672139,
+                0.8548958714808428
+              ],
+              "action_distribution": {
+                "fold": 23,
+                "call": 55,
+                "raise": 22,
+                "check": 0
+              },
+              "aggression_rate": 0.22,
+              "total_scenarios": 100,
+              "sample_decisions": [
+                {
+                  "action": "raise",
+                  "amount": 6,
+                  "scenario_type": "early_position"
+                },
+                {
+                  "action": "call",
+                  "amount": 3,
+                  "scenario_type": "late_position"
+                },
+                {
+                  "action": "call",
+                  "amount": 4,
+                  "scenario_type": "short_stack"
+                },
+                {
+                  "action": "call",
+                  "amount": 5,
+                  "scenario_type": "deep_stack"
+                },
+                {
+                  "action": "raise",
+                  "amount": 10,
+                  "scenario_type": "heads_up"
+                }
+              ]
+            }
+          ]
+        },
+        "optimal_no_deception": {
+          "config": {
+            "name": "optimal_no_deception",
+            "num_strategies": 6,
+            "lambda_commitment": 0.1,
+            "lambda_deception": 0.0
+          },
+          "trial_scores": [
+            0.5760652261174669,
+            0.5808161126973482,
+            0.5891044886745539,
+            0.6000098778293271,
+            0.5911302431768063,
+            0.576984118413922,
+            0.5802397788777435,
+            0.5696543552945379,
+            0.5691364002560221,
+            0.5855552993655584
+          ],
+          "mean_score": 0.5818695900703287,
+          "std_score": 0.009238119957744035,
+          "sem_score": 0.003079373319248011,
+          "confidence_interval_95": [
+            0.57490356365909,
+            0.5888356164815673
+          ],
+          "trial_details": [
+            {
+              "avg_score": 0.5760652261174669,
+              "score_std": 0.14035882685258289,
+              "score_range": [
+                0.2967738838595359,
+                0.895364480722086
+              ],
+              "action_distribution": {
+                "fold": 28,
+                "call": 45,
+                "raise": 27,
+                "check": 0
+              },
+              "aggression_rate": 0.27,
+              "total_scenarios": 100,
+              "sample_decisions": [
+                {
+                  "action": "raise",
+                  "amount": 6,
+                  "scenario_type": "early_position"
+                },
+                {
+                  "action": "call",
+                  "amount": 3,
+                  "scenario_type": "late_position"
+                },
+                {
+                  "action": "fold",
+                  "amount": 0,
+                  "scenario_type": "short_stack"
+                },
+                {
+                  "action": "raise",
+                  "amount": 9,
+                  "scenario_type": "deep_stack"
+                },
+                {
+                  "action": "call",
+                  "amount": 6,
+                  "scenario_type": "heads_up"
+                }
+              ]
+            },
+            {
+              "avg_score": 0.5808161126973482,
+              "score_std": 0.11330049632176098,
+              "score_range": [
+                0.3274148907664492,
+                0.8782220696225581
+              ],
+              "action_distribution": {
+                "fold": 23,
+                "call": 60,
+                "raise": 17,
+                "check": 0
+              },
+              "aggression_rate": 0.17,
+              "total_scenarios": 100,
+              "sample_decisions": [
+                {
+                  "action": "fold",
+                  "amount": 0,
+                  "scenario_type": "early_position"
+                },
+                {
+                  "action": "raise",
+                  "amount": 7,
+                  "scenario_type": "late_position"
+                },
+                {
+                  "action": "fold",
+                  "amount": 0,
+                  "scenario_type": "short_stack"
+                },
+                {
+                  "action": "fold",
+                  "amount": 0,
+                  "scenario_type": "deep_stack"
+                },
+                {
+                  "action": "fold",
+                  "amount": 0,
+                  "scenario_type": "heads_up"
+                }
+              ]
+            },
+            {
+              "avg_score": 0.5891044886745539,
+              "score_std": 0.1267112671606757,
+              "score_range": [
+                0.2750958031738564,
+                0.8632572778718576
+              ],
+              "action_distribution": {
+                "fold": 25,
+                "call": 52,
+                "raise": 23,
+                "check": 0
+              },
+              "aggression_rate": 0.23,
+              "total_scenarios": 100,
+              "sample_decisions": [
+                {
+                  "action": "raise",
+                  "amount": 6,
+                  "scenario_type": "early_position"
+                },
+                {
+                  "action": "raise",
+                  "amount": 7,
+                  "scenario_type": "late_position"
+                },
+                {
+                  "action": "fold",
+                  "amount": 0,
+                  "scenario_type": "short_stack"
+                },
+                {
+                  "action": "fold",
+                  "amount": 0,
+                  "scenario_type": "deep_stack"
+                },
+                {
+                  "action": "call",
+                  "amount": 6,
+                  "scenario_type": "heads_up"
+                }
+              ]
+            }
+          ]
+        },
+        "optimal_minimal_sum": {
+          "config": {
+            "name": "optimal_minimal_sum",
+            "num_strategies": 6,
+            "lambda_commitment": 0.0,
+            "lambda_deception": 0.0
+          },
+          "trial_scores": [
+            0.57671245059551,
+            0.5742020548086494,
+            0.5829676970389414,
+            0.5831418782978116,
+            0.5685355534322583,
+            0.6114099445755301,
+            0.5924586875334015,
+            0.5806993030437523,
+            0.5694299579552798,
+            0.6228740155039741
+          ],
+          "mean_score": 0.5862431542785109,
+          "std_score": 0.0170204761638321,
+          "sem_score": 0.005673492054610699,
+          "confidence_interval_95": [
+            0.5734088235887775,
+            0.5990774849682443
+          ],
+          "trial_details": [
+            {
+              "avg_score": 0.57671245059551,
+              "score_std": 0.14504935727647927,
+              "score_range": [
+                0.2540193083606096,
+                0.9068345402273373
+              ],
+              "action_distribution": {
+                "fold": 29,
+                "call": 51,
+                "raise": 20,
+                "check": 0
+              },
+              "aggression_rate": 0.2,
+              "total_scenarios": 100,
+              "sample_decisions": [
+                {
+                  "action": "call",
+                  "amount": 2,
+                  "scenario_type": "early_position"
+                },
+                {
+                  "action": "fold",
+                  "amount": 0,
+                  "scenario_type": "late_position"
+                },
+                {
+                  "action": "raise",
+                  "amount": 8,
+                  "scenario_type": "short_stack"
+                },
+                {
+                  "action": "raise",
+                  "amount": 9,
+                  "scenario_type": "deep_stack"
+                },
+                {
+                  "action": "fold",
+                  "amount": 0,
+                  "scenario_type": "heads_up"
+                }
+              ]
+            },
+            {
+              "avg_score": 0.5742020548086494,
+              "score_std": 0.1356902563960935,
+              "score_range": [
+                0.28961526593460374,
+                0.844226724894624
+              ],
+              "action_distribution": {
+                "fold": 29,
+                "call": 51,
+                "raise": 20,
+                "check": 0
+              },
+              "aggression_rate": 0.2,
+              "total_scenarios": 100,
+              "sample_decisions": [
+                {
+                  "action": "call",
+                  "amount": 2,
+                  "scenario_type": "early_position"
+                },
+                {
+                  "action": "call",
+                  "amount": 3,
+                  "scenario_type": "late_position"
+                },
+                {
+                  "action": "call",
+                  "amount": 4,
+                  "scenario_type": "short_stack"
+                },
+                {
+                  "action": "call",
+                  "amount": 5,
+                  "scenario_type": "deep_stack"
+                },
+                {
+                  "action": "call",
+                  "amount": 6,
+                  "scenario_type": "heads_up"
+                }
+              ]
+            },
+            {
+              "avg_score": 0.5829676970389414,
+              "score_std": 0.1370424042274994,
+              "score_range": [
+                0.2983774334182326,
+                0.8743586801010552
+              ],
+              "action_distribution": {
+                "fold": 24,
+                "call": 41,
+                "raise": 35,
+                "check": 0
+              },
+              "aggression_rate": 0.35,
+              "total_scenarios": 100,
+              "sample_decisions": [
+                {
+                  "action": "call",
+                  "amount": 2,
+                  "scenario_type": "early_position"
+                },
+                {
+                  "action": "call",
+                  "amount": 3,
+                  "scenario_type": "late_position"
+                },
+                {
+                  "action": "fold",
+                  "amount": 0,
+                  "scenario_type": "short_stack"
+                },
+                {
+                  "action": "fold",
+                  "amount": 0,
+                  "scenario_type": "deep_stack"
+                },
+                {
+                  "action": "raise",
+                  "amount": 10,
+                  "scenario_type": "heads_up"
+                }
+              ]
+            }
+          ]
+        },
+        "enhanced_commitment": {
+          "config": {
+            "name": "enhanced_commitment",
+            "num_strategies": 6,
+            "lambda_commitment": 0.2,
+            "lambda_deception": 0.05
+          },
+          "trial_scores": [
+            0.6127785784060689,
+            0.564439748849316,
+            0.5678548152213361,
+            0.6076234458773851,
+            0.5885238156181765,
+            0.5684219458634509,
+            0.575368752120274,
+            0.5791469352457314,
+            0.5793334268823179,
+            0.5974866147134282
+          ],
+          "mean_score": 0.5840978078797485,
+          "std_score": 0.016106848108763144,
+          "sem_score": 0.005368949369587714,
+          "confidence_interval_95": [
+            0.5719524006063347,
+            0.5962432151531624
+          ],
+          "trial_details": [
+            {
+              "avg_score": 0.6127785784060689,
+              "score_std": 0.11219976159845971,
+              "score_range": [
+                0.32802601068317566,
+                0.8909820223403677
+              ],
+              "action_distribution": {
+                "fold": 15,
+                "call": 51,
+                "raise": 34,
+                "check": 0
+              },
+              "aggression_rate": 0.34,
+              "total_scenarios": 100,
+              "sample_decisions": [
+                {
+                  "action": "raise",
+                  "amount": 6,
+                  "scenario_type": "early_position"
+                },
+                {
+                  "action": "call",
+                  "amount": 3,
+                  "scenario_type": "late_position"
+                },
+                {
+                  "action": "fold",
+                  "amount": 0,
+                  "scenario_type": "short_stack"
+                },
+                {
+                  "action": "call",
+                  "amount": 5,
+                  "scenario_type": "deep_stack"
+                },
+                {
+                  "action": "call",
+                  "amount": 6,
+                  "scenario_type": "heads_up"
+                }
+              ]
+            },
+            {
+              "avg_score": 0.564439748849316,
+              "score_std": 0.14337897167588215,
+              "score_range": [
+                0.31576402774851475,
+                0.8550588846386208
+              ],
+              "action_distribution": {
+                "fold": 36,
+                "call": 35,
+                "raise": 29,
+                "check": 0
+              },
+              "aggression_rate": 0.29,
+              "total_scenarios": 100,
+              "sample_decisions": [
+                {
+                  "action": "fold",
+                  "amount": 0,
+                  "scenario_type": "early_position"
+                },
+                {
+                  "action": "raise",
+                  "amount": 7,
+                  "scenario_type": "late_position"
+                },
+                {
+                  "action": "call",
+                  "amount": 4,
+                  "scenario_type": "short_stack"
+                },
+                {
+                  "action": "fold",
+                  "amount": 0,
+                  "scenario_type": "deep_stack"
+                },
+                {
+                  "action": "call",
+                  "amount": 6,
+                  "scenario_type": "heads_up"
+                }
+              ]
+            },
+            {
+              "avg_score": 0.5678548152213361,
+              "score_std": 0.13891279524310046,
+              "score_range": [
+                0.29648863005705267,
+                0.8529102616990017
+              ],
+              "action_distribution": {
+                "fold": 29,
+                "call": 56,
+                "raise": 15,
+                "check": 0
+              },
+              "aggression_rate": 0.15,
+              "total_scenarios": 100,
+              "sample_decisions": [
+                {
+                  "action": "call",
+                  "amount": 2,
+                  "scenario_type": "early_position"
+                },
+                {
+                  "action": "fold",
+                  "amount": 0,
+                  "scenario_type": "late_position"
+                },
+                {
+                  "action": "raise",
+                  "amount": 8,
+                  "scenario_type": "short_stack"
+                },
+                {
+                  "action": "call",
+                  "amount": 5,
+                  "scenario_type": "deep_stack"
+                },
+                {
+                  "action": "call",
+                  "amount": 6,
+                  "scenario_type": "heads_up"
+                }
+              ]
+            }
+          ]
+        },
+        "enhanced_deception": {
+          "config": {
+            "name": "enhanced_deception",
+            "num_strategies": 6,
+            "lambda_commitment": 0.1,
+            "lambda_deception": 0.1
+          },
+          "trial_scores": [
+            0.5793270417989871,
+            0.5859500212447174,
+            0.58849374021123,
+            0.5945249219726463,
+            0.5702813189337409,
+            0.5849220768633263,
+            0.6055642943124485,
+            0.5742133028484573,
+            0.5596148443720004,
+            0.6043419401190079
+          ],
+          "mean_score": 0.5847233502676563,
+          "std_score": 0.013819028394930643,
+          "sem_score": 0.004606342798310213,
+          "confidence_interval_95": [
+            0.5743030789118975,
+            0.5951436216234152
+          ],
+          "trial_details": [
+            {
+              "avg_score": 0.5793270417989871,
+              "score_std": 0.12718767141577536,
+              "score_range": [
+                0.29206810946528783,
+                0.9264760946019124
+              ],
+              "action_distribution": {
+                "fold": 23,
+                "call": 58,
+                "raise": 19,
+                "check": 0
+              },
+              "aggression_rate": 0.19,
+              "total_scenarios": 100,
+              "sample_decisions": [
+                {
+                  "action": "call",
+                  "amount": 2,
+                  "scenario_type": "early_position"
+                },
+                {
+                  "action": "call",
+                  "amount": 3,
+                  "scenario_type": "late_position"
+                },
+                {
+                  "action": "fold",
+                  "amount": 0,
+                  "scenario_type": "short_stack"
+                },
+                {
+                  "action": "raise",
+                  "amount": 9,
+                  "scenario_type": "deep_stack"
+                },
+                {
+                  "action": "raise",
+                  "amount": 10,
+                  "scenario_type": "heads_up"
+                }
+              ]
+            },
+            {
+              "avg_score": 0.5859500212447174,
+              "score_std": 0.14625256836944545,
+              "score_range": [
+                0.27240786756507407,
+                0.8876421432914091
+              ],
+              "action_distribution": {
+                "fold": 31,
+                "call": 36,
+                "raise": 33,
+                "check": 0
+              },
+              "aggression_rate": 0.33,
+              "total_scenarios": 100,
+              "sample_decisions": [
+                {
+                  "action": "raise",
+                  "amount": 6,
+                  "scenario_type": "early_position"
+                },
+                {
+                  "action": "call",
+                  "amount": 3,
+                  "scenario_type": "late_position"
+                },
+                {
+                  "action": "fold",
+                  "amount": 0,
+                  "scenario_type": "short_stack"
+                },
+                {
+                  "action": "call",
+                  "amount": 5,
+                  "scenario_type": "deep_stack"
+                },
+                {
+                  "action": "fold",
+                  "amount": 0,
+                  "scenario_type": "heads_up"
+                }
+              ]
+            },
+            {
+              "avg_score": 0.58849374021123,
+              "score_std": 0.1253960226590583,
+              "score_range": [
+                0.2839534586794689,
+                0.8636127296883964
+              ],
+              "action_distribution": {
+                "fold": 23,
+                "call": 57,
+                "raise": 20,
+                "check": 0
+              },
+              "aggression_rate": 0.2,
+              "total_scenarios": 100,
+              "sample_decisions": [
+                {
+                  "action": "call",
+                  "amount": 2,
+                  "scenario_type": "early_position"
+                },
+                {
+                  "action": "fold",
+                  "amount": 0,
+                  "scenario_type": "late_position"
+                },
+                {
+                  "action": "call",
+                  "amount": 4,
+                  "scenario_type": "short_stack"
+                },
+                {
+                  "action": "call",
+                  "amount": 5,
+                  "scenario_type": "deep_stack"
+                },
+                {
+                  "action": "call",
+                  "amount": 6,
+                  "scenario_type": "heads_up"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "statistical_comparisons": {
+        "optimal_full_sum_vs_optimal_no_commitment": {
+          "config1": "optimal_full_sum",
+          "config2": "optimal_no_commitment",
+          "mean_diff": -0.002998577238776612,
+          "t_statistic": -0.5121087193071726,
+          "p_value": 0.6148009741260704,
+          "significant": false,
+          "cohens_d": -0.22902198164823942,
+          "effect_size": "small"
+        },
+        "optimal_full_sum_vs_optimal_no_deception": {
+          "config1": "optimal_full_sum",
+          "config2": "optimal_no_deception",
+          "mean_diff": 0.00422239544400449,
+          "t_statistic": 0.8653012227213153,
+          "p_value": 0.39825976748106184,
+          "significant": false,
+          "cohens_d": 0.38697447100370935,
+          "effect_size": "small"
+        },
+        "optimal_full_sum_vs_optimal_minimal_sum": {
+          "config1": "optimal_full_sum",
+          "config2": "optimal_minimal_sum",
+          "mean_diff": -0.00015116876417775593,
+          "t_statistic": -0.022164346270258366,
+          "p_value": 0.9825607148357938,
+          "significant": false,
+          "cohens_d": -0.009912196987428328,
+          "effect_size": "negligible"
+        },
+        "optimal_full_sum_vs_enhanced_commitment": {
+          "config1": "optimal_full_sum",
+          "config2": "enhanced_commitment",
+          "mean_diff": 0.0019941776345846485,
+          "t_statistic": 0.30356478899861605,
+          "p_value": 0.7649403596617186,
+          "significant": false,
+          "cohens_d": 0.13575830075525716,
+          "effect_size": "negligible"
+        },
+        "optimal_full_sum_vs_enhanced_deception": {
+          "config1": "optimal_full_sum",
+          "config2": "enhanced_deception",
+          "mean_diff": 0.0013686352466768525,
+          "t_statistic": 0.22955421966384112,
+          "p_value": 0.8210264465892272,
+          "significant": false,
+          "cohens_d": 0.10265976793805355,
+          "effect_size": "negligible"
+        },
+        "optimal_no_commitment_vs_optimal_no_deception": {
+          "config1": "optimal_no_commitment",
+          "config2": "optimal_no_deception",
+          "mean_diff": 0.007220972682781102,
+          "t_statistic": 1.330867035975341,
+          "p_value": 0.19984635858485486,
+          "significant": false,
+          "cohens_d": 0.595181832290904,
+          "effect_size": "medium"
+        },
+        "optimal_no_commitment_vs_optimal_minimal_sum": {
+          "config1": "optimal_no_commitment",
+          "config2": "optimal_minimal_sum",
+          "mean_diff": 0.002847408474598856,
+          "t_statistic": 0.39431548468262406,
+          "p_value": 0.6979808167472832,
+          "significant": false,
+          "cohens_d": 0.1763432456662249,
+          "effect_size": "negligible"
+        },
+        "optimal_no_commitment_vs_enhanced_commitment": {
+          "config1": "optimal_no_commitment",
+          "config2": "enhanced_commitment",
+          "mean_diff": 0.00499275487336126,
+          "t_statistic": 0.7148425522665983,
+          "p_value": 0.48387537116165635,
+          "significant": false,
+          "cohens_d": 0.3196873080155121,
+          "effect_size": "small"
+        },
+        "optimal_no_commitment_vs_enhanced_deception": {
+          "config1": "optimal_no_commitment",
+          "config2": "enhanced_deception",
+          "mean_diff": 0.004367212485453464,
+          "t_statistic": 0.6805948237434815,
+          "p_value": 0.5047891740744243,
+          "significant": false,
+          "cohens_d": 0.3043712582049825,
+          "effect_size": "small"
+        },
+        "optimal_no_deception_vs_optimal_minimal_sum": {
+          "config1": "optimal_no_deception",
+          "config2": "optimal_minimal_sum",
+          "mean_diff": -0.004373564208182246,
+          "t_statistic": -0.6775140000341972,
+          "p_value": 0.5066955851754387,
+          "significant": false,
+          "cohens_d": -0.30299347195685195,
+          "effect_size": "small"
+        },
+        "optimal_no_deception_vs_enhanced_commitment": {
+          "config1": "optimal_no_deception",
+          "config2": "enhanced_commitment",
+          "mean_diff": -0.0022282178094198413,
+          "t_statistic": -0.3600078822913204,
+          "p_value": 0.723030700098684,
+          "significant": false,
+          "cohens_d": -0.1610004194478271,
+          "effect_size": "negligible"
+        },
+        "optimal_no_deception_vs_enhanced_deception": {
+          "config1": "optimal_no_deception",
+          "config2": "enhanced_deception",
+          "mean_diff": -0.002853760197327637,
+          "t_statistic": -0.5150408573166385,
+          "p_value": 0.6127915215067452,
+          "significant": false,
+          "cohens_d": -0.2303332736299547,
+          "effect_size": "small"
+        },
+        "optimal_minimal_sum_vs_enhanced_commitment": {
+          "config1": "optimal_minimal_sum",
+          "config2": "enhanced_commitment",
+          "mean_diff": 0.0021453463987624044,
+          "t_statistic": 0.27465165234036776,
+          "p_value": 0.786711351581819,
+          "significant": false,
+          "cohens_d": 0.1228279529531403,
+          "effect_size": "negligible"
+        },
+        "optimal_minimal_sum_vs_enhanced_deception": {
+          "config1": "optimal_minimal_sum",
+          "config2": "enhanced_deception",
+          "mean_diff": 0.0015198040108546085,
+          "t_statistic": 0.20796434212785414,
+          "p_value": 0.83759171969338,
+          "significant": false,
+          "cohens_d": 0.09300448117878105,
+          "effect_size": "negligible"
+        },
+        "enhanced_commitment_vs_enhanced_deception": {
+          "config1": "enhanced_commitment",
+          "config2": "enhanced_deception",
+          "mean_diff": -0.0006255423879077959,
+          "t_statistic": -0.08842614393891338,
+          "p_value": 0.9305143756539542,
+          "significant": false,
+          "cohens_d": -0.03954537376711827,
+          "effect_size": "negligible"
+        }
+      },
+      "conclusions": {
+        "best_configuration": "optimal_no_commitment",
+        "best_score": 0.5890905627531098,
+        "feature_analysis": {
+          "commitment": {
+            "beneficial": false,
+            "mean_difference": -0.002998577238776612,
+            "statistically_significant": false,
+            "effect_size": "small",
+            "interpretation": "Commitment mechanism hurts performance"
+          },
+          "deception": {
+            "beneficial": true,
+            "mean_difference": 0.00422239544400449,
+            "statistically_significant": false,
+            "effect_size": "small",
+            "interpretation": "Deception mechanism improves performance"
+          }
+        },
+        "recommendations": [
+          "Remove commitment mechanism (\u03bb_commitment = 0.0)",
+          "Keep deception mechanism"
+        ]
+      }
+    },
+    {
+      "experiment_type": "optimal_hyperparameter_study",
+      "parameter_combinations": {
+        "combo_0": {
+          "parameters": {
+            "num_strategies": 6,
+            "lambda_commitment": 0.1,
+            "lambda_deception": 0.05
+          },
+          "trial_scores": [
+            0.5566520270022058,
+            0.6231894296699576,
+            0.5867421738876624
+          ],
+          "mean_score": 0.5888612101866085,
+          "std_score": 0.0272050758078932,
+          "score_range": [
+            0.5566520270022058,
+            0.6231894296699576
+          ]
+        },
+        "combo_1": {
+          "parameters": {
+            "num_strategies": 6,
+            "lambda_commitment": 0.15,
+            "lambda_deception": 0.05
+          },
+          "trial_scores": [
+            0.6095057519798189,
+            0.5853657578707712,
+            0.5807015017518831
+          ],
+          "mean_score": 0.5918576705341577,
+          "std_score": 0.012623520515824549,
+          "score_range": [
+            0.5807015017518831,
+            0.6095057519798189
+          ]
+        },
+        "combo_2": {
+          "parameters": {
+            "num_strategies": 6,
+            "lambda_commitment": 0.1,
+            "lambda_deception": 0.08
+          },
+          "trial_scores": [
+            0.5946637507155168,
+            0.5791628788063321,
+            0.629255012023008
+          ],
+          "mean_score": 0.6010272138482856,
+          "std_score": 0.020939208833046254,
+          "score_range": [
+            0.5791628788063321,
+            0.629255012023008
+          ]
+        },
+        "combo_3": {
+          "parameters": {
+            "num_strategies": 8,
+            "lambda_commitment": 0.1,
+            "lambda_deception": 0.05
+          },
+          "trial_scores": [
+            0.6155742258519006,
+            0.5568266313625158,
+            0.5909893653760611
+          ],
+          "mean_score": 0.5877967408634924,
+          "std_score": 0.024089618829570413,
+          "score_range": [
+            0.5568266313625158,
+            0.6155742258519006
+          ]
+        },
+        "combo_4": {
+          "parameters": {
+            "num_strategies": 4,
+            "lambda_commitment": 0.1,
+            "lambda_deception": 0.05
+          },
+          "trial_scores": [
+            0.5995376005302457,
+            0.6006264894201265,
+            0.5925831692090352
+          ],
+          "mean_score": 0.5975824197198025,
+          "std_score": 0.0035628452118760105,
+          "score_range": [
+            0.5925831692090352,
+            0.6006264894201265
+          ]
+        }
+      },
+      "best_configuration": {
+        "num_strategies": 6,
+        "lambda_commitment": 0.1,
+        "lambda_deception": 0.08
+      },
+      "performance_ranking": [
+        {
+          "rank": 1,
+          "mean_score": 0.6010272138482856,
+          "parameters": {
+            "num_strategies": 6,
+            "lambda_commitment": 0.1,
+            "lambda_deception": 0.08
+          }
+        },
+        {
+          "rank": 2,
+          "mean_score": 0.5975824197198025,
+          "parameters": {
+            "num_strategies": 4,
+            "lambda_commitment": 0.1,
+            "lambda_deception": 0.05
+          }
+        },
+        {
+          "rank": 3,
+          "mean_score": 0.5918576705341577,
+          "parameters": {
+            "num_strategies": 6,
+            "lambda_commitment": 0.15,
+            "lambda_deception": 0.05
+          }
+        },
+        {
+          "rank": 4,
+          "mean_score": 0.5888612101866085,
+          "parameters": {
+            "num_strategies": 6,
+            "lambda_commitment": 0.1,
+            "lambda_deception": 0.05
+          }
+        },
+        {
+          "rank": 5,
+          "mean_score": 0.5877967408634924,
+          "parameters": {
+            "num_strategies": 8,
+            "lambda_commitment": 0.1,
+            "lambda_deception": 0.05
+          }
+        }
+      ]
+    },
+    {
+      "experiment_type": "robustness_analysis",
+      "best_config_used": {
+        "num_strategies": 6,
+        "lambda_commitment": 0.1,
+        "lambda_deception": 0.08
+      },
+      "test_conditions": {
+        "standard": {
+          "condition": {
+            "name": "standard",
+            "stack_size": 200,
+            "blind_ratio": 1.0
+          },
+          "performance": {
+            "avg_score": 0.597887700607693,
+            "score_std": 0.13352631442878385,
+            "score_range": [
+              0.32189207128640746,
+              0.8765159150216849
+            ],
+            "action_distribution": {
+              "fold": 7,
+              "call": 15,
+              "raise": 8,
+              "check": 0
+            },
+            "aggression_rate": 0.26666666666666666,
+            "total_scenarios": 30,
+            "sample_decisions": [
+              {
+                "action": "fold",
+                "amount": 0,
+                "scenario_type": "early_position"
+              },
+              {
+                "action": "raise",
+                "amount": 7,
+                "scenario_type": "late_position"
+              },
+              {
+                "action": "call",
+                "amount": 4,
+                "scenario_type": "short_stack"
+              },
+              {
+                "action": "call",
+                "amount": 5,
+                "scenario_type": "deep_stack"
+              },
+              {
+                "action": "fold",
+                "amount": 0,
+                "scenario_type": "heads_up"
+              }
+            ]
+          }
+        },
+        "short_stack": {
+          "condition": {
+            "name": "short_stack",
+            "stack_size": 50,
+            "blind_ratio": 1.0
+          },
+          "performance": {
+            "avg_score": 0.5607331718221903,
+            "score_std": 0.12011656502538273,
+            "score_range": [
+              0.32537164490650017,
+              0.861646779808191
+            ],
+            "action_distribution": {
+              "fold": 8,
+              "call": 18,
+              "raise": 4,
+              "check": 0
+            },
+            "aggression_rate": 0.13333333333333333,
+            "total_scenarios": 30,
+            "sample_decisions": [
+              {
+                "action": "call",
+                "amount": 2,
+                "scenario_type": "early_position"
+              },
+              {
+                "action": "call",
+                "amount": 3,
+                "scenario_type": "late_position"
+              },
+              {
+                "action": "call",
+                "amount": 4,
+                "scenario_type": "short_stack"
+              },
+              {
+                "action": "fold",
+                "amount": 0,
+                "scenario_type": "deep_stack"
+              },
+              {
+                "action": "raise",
+                "amount": 10,
+                "scenario_type": "heads_up"
+              }
+            ]
+          }
+        },
+        "deep_stack": {
+          "condition": {
+            "name": "deep_stack",
+            "stack_size": 500,
+            "blind_ratio": 1.0
+          },
+          "performance": {
+            "avg_score": 0.5644685223098042,
+            "score_std": 0.13172651199187252,
+            "score_range": [
+              0.2673780995795806,
+              0.806025183519258
+            ],
+            "action_distribution": {
+              "fold": 8,
+              "call": 15,
+              "raise": 7,
+              "check": 0
+            },
+            "aggression_rate": 0.23333333333333334,
+            "total_scenarios": 30,
+            "sample_decisions": [
+              {
+                "action": "call",
+                "amount": 2,
+                "scenario_type": "early_position"
+              },
+              {
+                "action": "raise",
+                "amount": 7,
+                "scenario_type": "late_position"
+              },
+              {
+                "action": "call",
+                "amount": 4,
+                "scenario_type": "short_stack"
+              },
+              {
+                "action": "fold",
+                "amount": 0,
+                "scenario_type": "deep_stack"
+              },
+              {
+                "action": "call",
+                "amount": 6,
+                "scenario_type": "heads_up"
+              }
+            ]
+          }
+        },
+        "high_blinds": {
+          "condition": {
+            "name": "high_blinds",
+            "stack_size": 200,
+            "blind_ratio": 2.0
+          },
+          "performance": {
+            "avg_score": 0.5709790103823355,
+            "score_std": 0.14790593761901172,
+            "score_range": [
+              0.2840693748396145,
+              0.8030724980133849
+            ],
+            "action_distribution": {
+              "fold": 8,
+              "call": 15,
+              "raise": 7,
+              "check": 0
+            },
+            "aggression_rate": 0.23333333333333334,
+            "total_scenarios": 30,
+            "sample_decisions": [
+              {
+                "action": "fold",
+                "amount": 0,
+                "scenario_type": "early_position"
+              },
+              {
+                "action": "raise",
+                "amount": 7,
+                "scenario_type": "late_position"
+              },
+              {
+                "action": "fold",
+                "amount": 0,
+                "scenario_type": "short_stack"
+              },
+              {
+                "action": "call",
+                "amount": 5,
+                "scenario_type": "deep_stack"
+              },
+              {
+                "action": "call",
+                "amount": 6,
+                "scenario_type": "heads_up"
+              }
+            ]
+          }
+        },
+        "micro_stakes": {
+          "condition": {
+            "name": "micro_stakes",
+            "stack_size": 100,
+            "blind_ratio": 0.5
+          },
+          "performance": {
+            "avg_score": 0.5662761197284367,
+            "score_std": 0.13754923649071896,
+            "score_range": [
+              0.28183106275597647,
+              0.7996703061009662
+            ],
+            "action_distribution": {
+              "fold": 8,
+              "call": 16,
+              "raise": 6,
+              "check": 0
+            },
+            "aggression_rate": 0.2,
+            "total_scenarios": 30,
+            "sample_decisions": [
+              {
+                "action": "raise",
+                "amount": 6,
+                "scenario_type": "early_position"
+              },
+              {
+                "action": "fold",
+                "amount": 0,
+                "scenario_type": "late_position"
+              },
+              {
+                "action": "raise",
+                "amount": 8,
+                "scenario_type": "short_stack"
+              },
+              {
+                "action": "call",
+                "amount": 5,
+                "scenario_type": "deep_stack"
+              },
+              {
+                "action": "call",
+                "amount": 6,
+                "scenario_type": "heads_up"
+              }
+            ]
+          }
+        }
+      },
+      "robustness_metrics": {
+        "mean_performance": 0.5720689049700919,
+        "std_performance": 0.013323806526873675,
+        "min_performance": 0.5607331718221903,
+        "max_performance": 0.597887700607693,
+        "performance_range": 0.03715452878550274,
+        "coefficient_of_variation": 0.023290562397496946,
+        "robustness_score": 0.9767094783152939
+      }
+    }
+  ],
+  "summary": {
+    "total_experiments": 3,
+    "successful_experiments": 3,
+    "best_configuration_from_ablation": "optimal_no_commitment",
+    "optimal_hyperparameters": {
+      "num_strategies": 6,
+      "lambda_commitment": 0.1,
+      "lambda_deception": 0.08
+    },
+    "key_findings": {
+      "best_configuration": "optimal_no_commitment",
+      "best_score": 0.5890905627531098,
+      "feature_analysis": {
+        "commitment": {
+          "beneficial": false,
+          "mean_difference": -0.002998577238776612,
+          "statistically_significant": false,
+          "effect_size": "small",
+          "interpretation": "Commitment mechanism hurts performance"
+        },
+        "deception": {
+          "beneficial": true,
+          "mean_difference": 0.00422239544400449,
+          "statistically_significant": false,
+          "effect_size": "small",
+          "interpretation": "Deception mechanism improves performance"
+        }
+      },
+      "recommendations": [
+        "Remove commitment mechanism (\u03bb_commitment = 0.0)",
+        "Keep deception mechanism"
+      ]
+    },
+    "robustness_assessment": {
+      "mean_performance": 0.5720689049700919,
+      "std_performance": 0.013323806526873675,
+      "min_performance": 0.5607331718221903,
+      "max_performance": 0.597887700607693,
+      "performance_range": 0.03715452878550274,
+      "coefficient_of_variation": 0.023290562397496946,
+      "robustness_score": 0.9767094783152939
+    },
+    "completion_time": 1758122834.4542952
+  },
+  "statistical_analysis": {}
+}

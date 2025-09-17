@@ -1,0 +1,72 @@
+Excellent, you have a comprehensive set of results from your CPU experiments. This is a fantastic and crucial first step.
+
+Here is a detailed analysis of what these results mean. In short, they are scientifically very interesting, but they reveal an unexpected and significant challenge: **your core hypotheses are not currently supported by this data.**
+
+### Executive Summary
+
+Your CPU experiments have successfully run, showing that the agent is robust and that hyperparameters matter. However, the ablation study—the most critical experiment—indicates that your novel **commitment and deception mechanisms are not improving performance**. In fact, they may be slightly hurting it, although the differences are not statistically significant.
+
+This is not a failure; it's a pivotal research finding that must be addressed.
+
+---
+
+### Key Finding #1: Core Hypotheses Not Supported (The Unexpected Result)
+
+The central goal of the SUM agent was to prove that temporal commitment and explicit deception would improve performance. The `comprehensive_ablation_study` directly contradicts this.
+
+* **Performance Breakdown**:
+    * `full_sum` (with both features): mean score **0.588**
+    * `no_commitment` (deception only): mean score **0.590**
+    * `no_deception` (commitment only): mean score **0.591**
+    * `minimal_sum` (neither feature): mean score **0.588**
+
+* **Interpretation**: The versions of the agent *without* your novel features performed slightly better than the full implementation. The analysis in the results file is blunt: the interpretation for both the commitment and deception mechanisms is that they "hurt performance".
+
+* **Statistical Significance**: This is the most important part. The statistical comparisons show **p-values are very high** (e.g., 0.88 for `full_sum_vs_no_commitment`) and all comparisons are marked as **not significant**. This means the small differences in scores are statistically indistinguishable from random noise. You cannot claim one model is better than another based on this data.
+
+### Key Finding #2: The Agent is Robust (A Positive Result)
+
+The `robustness_analysis` is a bright spot. It shows that the underlying model, once configured, performs consistently across different game conditions.
+
+* You tested the agent under various stack sizes and blind ratios, including `short_stack`, `deep_stack`, and `micro_stakes` conditions.
+* The performance remained stable, with a low coefficient of variation (0.032) and a high robustness score (0.967).
+* **This is a great result!** It means your base architecture is solid and can generalize, which is a key requirement for a strong AI agent.
+
+### Key Finding #3: Hyperparameter Tuning Shows Promise
+
+The `optimal_hyperparameter_study` provides a clear path for improvement.
+
+* The best-performing combination of parameters was `num_strategies: 6`, `lambda_commitment: 0.1`, and `lambda_deception: 0.05`.
+* This configuration achieved a mean score of **0.594**, which is the highest score across all the CPU experiments.
+* This suggests that your initial parameters for the full SUM agent (`num_strategies: 8`, `lambda_commitment: 0.3`, `lambda_deception: 0.1`) may have been suboptimal. The agent might perform better with fewer strategies and a weaker emphasis on the new loss terms.
+
+### ⚠️ Critical Inconsistency in Reporting
+
+There is a major contradiction between your summary report and your detailed results.
+* The `RESEARCH_REPORT.md` states: "**Both commitment mechanism and deception reward contribute to agent performance**".
+* The `results.json` data and the report's own phase results (`Commitment Beneficial: False`, `Deception Beneficial: False`) show the exact opposite.
+
+This must be corrected immediately. Accurate reporting is paramount, and right now the summary misrepresents the primary finding.
+
+---
+
+### ## Diagnosis and Specific Next Steps
+
+These results don't mean your idea is wrong, but they show that its benefit is not emerging under the current experimental conditions. Here’s why that might be and what to do next.
+
+**1. Address the Scale Limitation**
+Your `pipeline_summary.json` shows these were CPU experiments with `training_hands: 1,000,000`. Your original plan called for GPU training with `10,000,000` hands.
+* **Problem**: Complex, subtle strategies like temporal deception may require much more training data to emerge. An agent might initially be "confused" by the extra complexity of the commitment/deception objectives, causing a slight performance drop. With more training, it might learn to use them effectively.
+* **Next Step**: **Proceed with the full-scale GPU experiments as planned.** These CPU results should be considered a preliminary, small-scale run. The full-scale experiment is now even more important to either confirm or refute these initial findings.
+
+**2. Use Optimized Hyperparameters for the GPU Run**
+Don't use the original parameters for your main experiment. Use what you learned from the hyperparameter study.
+* **Problem**: Your initial guess for the hyperparameters seems to be suboptimal.
+* **Next Step**: For the full 10-million-hand GPU training run, use the best configuration you found: `num_strategies: 6`, `lambda_commitment: 0.1`, and `lambda_deception: 0.05`. This gives your hypothesis the best chance of success.
+
+**3. Correct the Automated Report**
+Ensure your reporting pipeline accurately reflects the statistical conclusions.
+* **Problem**: The summary text is hard-coded or using faulty logic.
+* **Next Step**: Fix the logic in your `RESEARCH_REPORT.md` generator. The conclusion should be data-driven and state that, based on current results, the features' benefits have not been proven.
+
+In summary, you have a robust agent architecture but surprising and statistically insignificant results regarding your core hypothesis. The next logical and necessary step is to run the full-scale GPU experiment with the optimized hyperparameters you've discovered.

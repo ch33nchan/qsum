@@ -1,0 +1,627 @@
+{
+  "timestamp": 1758062185.2347379,
+  "experiments": [
+    {
+      "experiment_type": "comprehensive_ablation_study",
+      "configurations": {
+        "full_sum": {
+          "config": {
+            "name": "full_sum",
+            "num_strategies": 8,
+            "lambda_commitment": 0.3,
+            "lambda_deception": 0.1
+          },
+          "trial_scores": [
+            0.5936738200613422,
+            0.5966167485460144,
+            0.5726559808380316,
+            0.6075970204832536,
+            0.5876185429277262
+          ],
+          "mean_score": 0.5916324225712736,
+          "std_score": 0.01148995880126768,
+          "sem_score": 0.00574497940063384,
+          "confidence_interval_95": [
+            0.5756818026349215,
+            0.6075830425076256
+          ],
+          "trial_details": [
+            {
+              "avg_score": 0.5936738200613422,
+              "score_std": 0.12669741623967287,
+              "score_range": [
+                0.33197545282390106,
+                0.8230319582867132
+              ],
+              "action_distribution": {
+                "fold": 11,
+                "call": 24,
+                "raise": 15,
+                "check": 0
+              },
+              "aggression_rate": 0.3,
+              "total_scenarios": 50,
+              "sample_decisions": [
+                {
+                  "action": "raise",
+                  "amount": 6,
+                  "scenario_type": "early_position"
+                },
+                {
+                  "action": "call",
+                  "amount": 3,
+                  "scenario_type": "late_position"
+                },
+                {
+                  "action": "fold",
+                  "amount": 0,
+                  "scenario_type": "short_stack"
+                },
+                {
+                  "action": "raise",
+                  "amount": 9,
+                  "scenario_type": "deep_stack"
+                },
+                {
+                  "action": "call",
+                  "amount": 6,
+                  "scenario_type": "heads_up"
+                }
+              ]
+            },
+            {
+              "avg_score": 0.5966167485460144,
+              "score_std": 0.139283436311667,
+              "score_range": [
+                0.29663490076899063,
+                0.8731266390420761
+              ],
+              "action_distribution": {
+                "fold": 12,
+                "call": 22,
+                "raise": 16,
+                "check": 0
+              },
+              "aggression_rate": 0.32,
+              "total_scenarios": 50,
+              "sample_decisions": [
+                {
+                  "action": "call",
+                  "amount": 2,
+                  "scenario_type": "early_position"
+                },
+                {
+                  "action": "call",
+                  "amount": 3,
+                  "scenario_type": "late_position"
+                },
+                {
+                  "action": "raise",
+                  "amount": 8,
+                  "scenario_type": "short_stack"
+                },
+                {
+                  "action": "fold",
+                  "amount": 0,
+                  "scenario_type": "deep_stack"
+                },
+                {
+                  "action": "call",
+                  "amount": 6,
+                  "scenario_type": "heads_up"
+                }
+              ]
+            },
+            {
+              "avg_score": 0.5726559808380316,
+              "score_std": 0.12730534550168038,
+              "score_range": [
+                0.282165745922229,
+                0.8687275659739513
+              ],
+              "action_distribution": {
+                "fold": 12,
+                "call": 32,
+                "raise": 6,
+                "check": 0
+              },
+              "aggression_rate": 0.12,
+              "total_scenarios": 50,
+              "sample_decisions": [
+                {
+                  "action": "call",
+                  "amount": 2,
+                  "scenario_type": "early_position"
+                },
+                {
+                  "action": "call",
+                  "amount": 3,
+                  "scenario_type": "late_position"
+                },
+                {
+                  "action": "call",
+                  "amount": 4,
+                  "scenario_type": "short_stack"
+                },
+                {
+                  "action": "call",
+                  "amount": 5,
+                  "scenario_type": "deep_stack"
+                },
+                {
+                  "action": "fold",
+                  "amount": 0,
+                  "scenario_type": "heads_up"
+                }
+              ]
+            }
+          ]
+        },
+        "no_commitment": {
+          "config": {
+            "name": "no_commitment",
+            "num_strategies": 8,
+            "lambda_commitment": 0.0,
+            "lambda_deception": 0.1
+          },
+          "trial_scores": [
+            0.6046152319936218,
+            0.5739839321270773,
+            0.590658991996301,
+            0.5839462619095525,
+            0.6033021175308447
+          ],
+          "mean_score": 0.5913013071114794,
+          "std_score": 0.011624807795992561,
+          "sem_score": 0.0058124038979962805,
+          "confidence_interval_95": [
+            0.5751634867594551,
+            0.6074391274635038
+          ],
+          "trial_details": [
+            {
+              "avg_score": 0.6046152319936218,
+              "score_std": 0.12680612535664434,
+              "score_range": [
+                0.327016890002361,
+                0.8273721375302884
+              ],
+              "action_distribution": {
+                "fold": 10,
+                "call": 22,
+                "raise": 18,
+                "check": 0
+              },
+              "aggression_rate": 0.36,
+              "total_scenarios": 50,
+              "sample_decisions": [
+                {
+                  "action": "call",
+                  "amount": 2,
+                  "scenario_type": "early_position"
+                },
+                {
+                  "action": "raise",
+                  "amount": 7,
+                  "scenario_type": "late_position"
+                },
+                {
+                  "action": "call",
+                  "amount": 4,
+                  "scenario_type": "short_stack"
+                },
+                {
+                  "action": "fold",
+                  "amount": 0,
+                  "scenario_type": "deep_stack"
+                },
+                {
+                  "action": "call",
+                  "amount": 6,
+                  "scenario_type": "heads_up"
+                }
+              ]
+            },
+            {
+              "avg_score": 0.5739839321270773,
+              "score_std": 0.12949353121887067,
+              "score_range": [
+                0.28914605890586753,
+                0.8470187848883618
+              ],
+              "action_distribution": {
+                "fold": 12,
+                "call": 29,
+                "raise": 9,
+                "check": 0
+              },
+              "aggression_rate": 0.18,
+              "total_scenarios": 50,
+              "sample_decisions": [
+                {
+                  "action": "call",
+                  "amount": 2,
+                  "scenario_type": "early_position"
+                },
+                {
+                  "action": "call",
+                  "amount": 3,
+                  "scenario_type": "late_position"
+                },
+                {
+                  "action": "raise",
+                  "amount": 8,
+                  "scenario_type": "short_stack"
+                },
+                {
+                  "action": "call",
+                  "amount": 5,
+                  "scenario_type": "deep_stack"
+                },
+                {
+                  "action": "call",
+                  "amount": 6,
+                  "scenario_type": "heads_up"
+                }
+              ]
+            },
+            {
+              "avg_score": 0.590658991996301,
+              "score_std": 0.1296490732350216,
+              "score_range": [
+                0.3237305069351134,
+                0.8943769998226883
+              ],
+              "action_distribution": {
+                "fold": 10,
+                "call": 25,
+                "raise": 15,
+                "check": 0
+              },
+              "aggression_rate": 0.3,
+              "total_scenarios": 50,
+              "sample_decisions": [
+                {
+                  "action": "call",
+                  "amount": 2,
+                  "scenario_type": "early_position"
+                },
+                {
+                  "action": "raise",
+                  "amount": 7,
+                  "scenario_type": "late_position"
+                },
+                {
+                  "action": "raise",
+                  "amount": 8,
+                  "scenario_type": "short_stack"
+                },
+                {
+                  "action": "call",
+                  "amount": 5,
+                  "scenario_type": "deep_stack"
+                },
+                {
+                  "action": "fold",
+                  "amount": 0,
+                  "scenario_type": "heads_up"
+                }
+              ]
+            }
+          ]
+        },
+        "no_deception": {
+          "config": {
+            "name": "no_deception",
+            "num_strategies": 8,
+            "lambda_commitment": 0.3,
+            "lambda_deception": 0.0
+          },
+          "trial_scores": [
+            0.5882398439843852,
+            0.5655408597686021,
+            0.5694072230352719,
+            0.5889498847604889,
+            0.5770980594419529
+          ],
+          "mean_score": 0.5778471741981402,
+          "std_score": 0.009534328403253335,
+          "sem_score": 0.004767164201626668,
+          "confidence_interval_95": [
+            0.5646114044848597,
+            0.5910829439114208
+          ],
+          "trial_details": [
+            {
+              "avg_score": 0.5882398439843852,
+              "score_std": 0.11931504809456542,
+              "score_range": [
+                0.3018327228371958,
+                0.8344705145392247
+              ],
+              "action_distribution": {
+                "fold": 11,
+                "call": 28,
+                "raise": 11,
+                "check": 0
+              },
+              "aggression_rate": 0.22,
+              "total_scenarios": 50,
+              "sample_decisions": [
+                {
+                  "action": "raise",
+                  "amount": 6,
+                  "scenario_type": "early_position"
+                },
+                {
+                  "action": "fold",
+                  "amount": 0,
+                  "scenario_type": "late_position"
+                },
+                {
+                  "action": "call",
+                  "amount": 4,
+                  "scenario_type": "short_stack"
+                },
+                {
+                  "action": "call",
+                  "amount": 5,
+                  "scenario_type": "deep_stack"
+                },
+                {
+                  "action": "call",
+                  "amount": 6,
+                  "scenario_type": "heads_up"
+                }
+              ]
+            },
+            {
+              "avg_score": 0.5655408597686021,
+              "score_std": 0.15504757068874517,
+              "score_range": [
+                0.27843048702888606,
+                0.8480348083179632
+              ],
+              "action_distribution": {
+                "fold": 18,
+                "call": 18,
+                "raise": 14,
+                "check": 0
+              },
+              "aggression_rate": 0.28,
+              "total_scenarios": 50,
+              "sample_decisions": [
+                {
+                  "action": "call",
+                  "amount": 2,
+                  "scenario_type": "early_position"
+                },
+                {
+                  "action": "raise",
+                  "amount": 7,
+                  "scenario_type": "late_position"
+                },
+                {
+                  "action": "call",
+                  "amount": 4,
+                  "scenario_type": "short_stack"
+                },
+                {
+                  "action": "raise",
+                  "amount": 9,
+                  "scenario_type": "deep_stack"
+                },
+                {
+                  "action": "call",
+                  "amount": 6,
+                  "scenario_type": "heads_up"
+                }
+              ]
+            },
+            {
+              "avg_score": 0.5694072230352719,
+              "score_std": 0.13124314134627243,
+              "score_range": [
+                0.26720192460406667,
+                0.8314837970937247
+              ],
+              "action_distribution": {
+                "fold": 16,
+                "call": 21,
+                "raise": 13,
+                "check": 0
+              },
+              "aggression_rate": 0.26,
+              "total_scenarios": 50,
+              "sample_decisions": [
+                {
+                  "action": "raise",
+                  "amount": 6,
+                  "scenario_type": "early_position"
+                },
+                {
+                  "action": "raise",
+                  "amount": 7,
+                  "scenario_type": "late_position"
+                },
+                {
+                  "action": "fold",
+                  "amount": 0,
+                  "scenario_type": "short_stack"
+                },
+                {
+                  "action": "call",
+                  "amount": 5,
+                  "scenario_type": "deep_stack"
+                },
+                {
+                  "action": "raise",
+                  "amount": 10,
+                  "scenario_type": "heads_up"
+                }
+              ]
+            }
+          ]
+        },
+        "minimal_sum": {
+          "config": {
+            "name": "minimal_sum",
+            "num_strategies": 8,
+            "lambda_commitment": 0.0,
+            "lambda_deception": 0.0
+          },
+          "trial_scores": [
+            0.578463550978382,
+            0.5605324998809514,
+            0.6045591939933044,
+            0.5731039491219249,
+            0.5684239796877752
+          ],
+          "mean_score": 0.5770166347324676,
+          "std_score": 0.014977020187383014,
+          "sem_score": 0.007488510093691507,
+          "confidence_interval_95": [
+            0.5562251975376135,
+            0.5978080719273217
+          ],
+          "trial_details": [
+            {
+              "avg_score": 0.578463550978382,
+              "score_std": 0.1302335827812607,
+              "score_range": [
+                0.33100059517558755,
+                0.8587241379437077
+              ],
+              "action_distribution": {
+                "fold": 14,
+                "call": 24,
+                "raise": 12,
+                "check": 0
+              },
+              "aggression_rate": 0.24,
+              "total_scenarios": 50,
+              "sample_decisions": [
+                {
+                  "action": "fold",
+                  "amount": 0,
+                  "scenario_type": "early_position"
+                },
+                {
+                  "action": "call",
+                  "amount": 3,
+                  "scenario_type": "late_position"
+                },
+                {
+                  "action": "raise",
+                  "amount": 8,
+                  "scenario_type": "short_stack"
+                },
+                {
+                  "action": "call",
+                  "amount": 5,
+                  "scenario_type": "deep_stack"
+                },
+                {
+                  "action": "fold",
+                  "amount": 0,
+                  "scenario_type": "heads_up"
+                }
+              ]
+            },
+            {
+              "avg_score": 0.5605324998809514,
+              "score_std": 0.15252045871260986,
+              "score_range": [
+                0.26465753428547956,
+                0.8375350445069569
+              ],
+              "action_distribution": {
+                "fold": 19,
+                "call": 18,
+                "raise": 13,
+                "check": 0
+              },
+              "aggression_rate": 0.26,
+              "total_scenarios": 50,
+              "sample_decisions": [
+                {
+                  "action": "raise",
+                  "amount": 6,
+                  "scenario_type": "early_position"
+                },
+                {
+                  "action": "fold",
+                  "amount": 0,
+                  "scenario_type": "late_position"
+                },
+                {
+                  "action": "raise",
+                  "amount": 8,
+                  "scenario_type": "short_stack"
+                },
+                {
+                  "action": "call",
+                  "amount": 5,
+                  "scenario_type": "deep_stack"
+                },
+                {
+                  "action": "call",
+                  "amount": 6,
+                  "scenario_type": "heads_up"
+                }
+              ]
+            },
+            {
+              "avg_score": 0.6045591939933044,
+              "score_std": 0.10601910257284818,
+              "score_range": [
+                0.3730991054563009,
+                0.7896529398118729
+              ],
+              "action_distribution": {
+                "fold": 9,
+                "call": 25,
+                "raise": 16,
+                "check": 0
+              },
+              "aggression_rate": 0.32,
+              "total_scenarios": 50,
+              "sample_decisions": [
+                {
+                  "action": "fold",
+                  "amount": 0,
+                  "scenario_type": "early_position"
+                },
+                {
+                  "action": "call",
+                  "amount": 3,
+                  "scenario_type": "late_position"
+                },
+                {
+                  "action": "call",
+                  "amount": 4,
+                  "scenario_type": "short_stack"
+                },
+                {
+                  "action": "call",
+                  "amount": 5,
+                  "scenario_type": "deep_stack"
+                },
+                {
+                  "action": "call",
+                  "amount": 6,
+                  "scenario_type": "heads_up"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "statistical_comparisons": {
+        "full_sum_vs_no_commitment": {
+          "config1": "full_sum",
+          "config2": "no_commitment",
+          "mean_diff": 0.00033111545979414014,
+          "t_statistic": 0.04051609204936137,
+          "p_value": 0.9686745751397541,
+          "significant": 

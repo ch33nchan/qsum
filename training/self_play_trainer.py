@@ -1,0 +1,526 @@
+import torch
+import torch.nn as nn
+import torch.multiprocessing as mp
+import numpy as np
+from typing import Dict, List, Tuple, Optional, Any
+import logging
+import time
+import json
+import os
+from collections import deque
+from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
+import threading
+from dataclasses import dataclass
+
+from agents.sum_agent import SUMAgent
+from environments.poker_environment import PokerEnvironment
+from sum.neural_architecture import SUMNeuralArchitecture
+from sum.loss_functions import MultiObjectiveLossManager
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+@dataclass
+class TrainingConfig:
+    total_hands: int = 10_000_000
+    parallel_games: int = 64
+    batch_size: int = 256
+    learning_rate: float = 0.001
+    save_frequency: int = 100_000
+    evaluation_frequency: int = 500_000
+    checkpoint_dir: str = "checkpoints"
+    log_dir: str = "training_logs"
+    device: str = "cuda" if torch.cuda.is_available() else "cpu"
+    num_strategies: int = 8
+    lambda_commitment: float = 0.3
+    lambda_deception: float = 0.1
+    gradient_clip_norm: float = 1.0
+    target_update_frequency: int = 1000
+    experience_buffer_size: int = 100_000
+
+class ParallelGameManager:
+    def __init__(self, config: TrainingConfig):
+        self.config = config
+        self.game_environments = []
+        self.active_games = {}
+        self.completed_games = deque(maxlen=10000)
+        
+        for i in range(config.parallel_games):
+            env = PokerEnvironment(
+                initial_stack=200,
+                small_blind=1,
+                big_blind=2
+            )
+            self.game_environments.append(env)
+        
+        logger.info(f"ParallelGameManager initialized with {config.parallel_games} parallel games")
+    
+    def run_parallel_games(self, agent1: SUMAgent, agent2: SUMAgent, hands_per_game: int = 100) -> List[Dict]:
+        results = []
+        
+        with ThreadPoolExecutor(max_workers=self.config.parallel_games) as executor:
+            futures = []
+            
+            for i in range(self.config.parallel_games):
+                env = self.game_environments[i]
+                
+                future = executor.submit(
+                    self._run_single_game,
+                    env, agent1, agent2, hands_per_game, i
+                )
+                futures.append(future)
+            
+            for future in futures:
+                try:
+                    result = future.result(timeout=300)
+                    results.append(result)
+                except Exception as e:
+                    logger.error(f"Game execution failed: {e}")
+                    results.append(self._create_error_result())
+        
+        return results
+    
+    def _run_single_game(self, env: PokerEnvironment, agent1: SUMAgent, agent2: SUMAgent, hands_per_game: int, game_id: int) -> Dict:
+        try:
+            start_time = time.time()
+            
+            result = env.run_tournament(agent1, agent2, num_games=hands_per_game)
+            
+            end_time = time.time()
+            
+            result.update({
+                'game_id': game_id,
+                'execution_time': end_time - start_time,
+                'hands_per_game': hands_per_game
+            })
+            
+            return result
+            
+        except Exception as e:
+            logger.error(f"Error in game {game_id}: {e}")
+            return self._create_error_result(game_id)
+    
+    def _create_error_result(self, game_id: int = -1) -> Dict:
+        return {
+            'game_id': game_id,
+            'success': False,
+            'error': 'Game execution failed',
+            'execution_time': 0,
+            'hands_per_game': 0,
+            'player_results': {}
+        }
+
+class ExperienceReplayBuffer:
+    def __init__(self, capacity: int, device: str):
+        self.capacity = capacity
+        self.device = torch.device(device)
+        self.buffer = deque(maxlen=capacity)
+        self.priorities = deque(maxlen=capacity)
+        
+        logger.info(f"ExperienceReplayBuffer initialized with capacity {capacity}")
+    
+    def add_experience(self, experience: Dict, priority: float = 1.0):
+        self.buffer.append(experience)
+        self.priorities.append(priority)
+    
+    def sample_batch(self, batch_size: int, prioritized: bool = True) -> List[Dict]:
+        if len(self.buffer) < batch_size:
+            return list(self.buffer)
+        
+        if prioritized and len(self.priorities) == len(self.buffer):
+            priorities = np.array(self.priorities)
+            probabilities = priorities / np.sum(priorities)
+            
+            indices = np.random.choice(
+                len(self.buffer),
+                size=batch_size,
+                replace=False,
+                p=probabilities
+            )
+        else:
+            indices = np.random.choice(len(self.buffer), size=batch_size, replace=False)
+        
+        return [self.buffer[i] for i in indices]
+    
+    def update_priorities(self, indices: List[int], priorities: List[float]):
+        for idx, priority in zip(indices, priorities):
+            if 0 <= idx < len(self.priorities):
+                self.priorities[idx] = priority
+    
+    def __len__(self):
+        return len(self.buffer)
+
+class SelfPlayTrainer:
+    def __init__(self, config: TrainingConfig):
+        self.config = config
+        self.device = torch.device(config.device)
+        
+        os.makedirs(config.checkpoint_dir, exist_ok=True)
+        os.makedirs(config.log_dir, exist_ok=True)
+        
+        self.main_agent = SUMAgent(
+            name="SUM_Main",
+            num_strategies=config.num_strategies,
+            device=config.device,
+            learning_rate=config.learning_rate,
+            lambda_commitment=config.lambda_commitment,
+            lambda_deception=config.lambda_deception
+        )
+        
+        self.target_agent = SUMAgent(
+            name="SUM_Target",
+            num_strategies=config.num_strategies,
+            device=config.device,
+            learning_rate=config.learning_rate,
+            lambda_commitment=config.lambda_commitment,
+            lambda_deception=config.lambda_deception
+        )
+        
+        self.target_agent.neural_architecture.load_state_dict(
+            self.main_agent.neural_architecture.state_dict()
+        )
+        self.target_agent.set_training_mode(False)
+        
+        self.game_manager = ParallelGameManager(config)
+        self.experience_buffer = ExperienceReplayBuffer(
+            capacity=config.experience_buffer_size,
+            device=config.device
+        )
+        
+        self.training_statistics = {
+            'total_hands_played': 0,
+            'total_training_steps': 0,
+            'total_games': 0,
+            'average_game_duration': 0.0,
+            'win_rate_history': [],
+            'loss_history': [],
+            'commitment_rate_history': [],
+            'strategy_diversity_history': []
+        }
+        
+        self.performance_tracker = {
+            'recent_win_rates': deque(maxlen=100),
+            'recent_losses': deque(maxlen=1000),
+            'hands_per_second': deque(maxlen=50)
+        }
+        
+        logger.info(f"SelfPlayTrainer initialized on {config.device}")
+    
+    def train(self) -> Dict[str, Any]:
+        logger.info(f"Starting self-play training for {self.config.total_hands:,} hands")
+        
+        start_time = time.time()
+        hands_played = 0
+        training_step = 0
+        
+        while hands_played < self.config.total_hands:
+            epoch_start = time.time()
+            
+            game_results = self._run_training_epoch()
+            
+            hands_this_epoch = self._process_game_results(game_results)
+            hands_played += hands_this_epoch
+            
+            if len(self.experience_buffer) >= self.config.batch_size:
+                training_losses = self._training_step()
+                training_step += 1
+                
+                self.performance_tracker['recent_losses'].append(training_losses)
+            
+            if training_step % self.config.target_update_frequency == 0 and training_step > 0:
+                self._update_target_network()
+            
+            if hands_played % self.config.save_frequency == 0 and hands_played > 0:
+                self._save_checkpoint(hands_played, training_step)
+            
+            if hands_played % self.config.evaluation_frequency == 0 and hands_played > 0:
+                self._evaluate_progress(hands_played)
+            
+            epoch_duration = time.time() - epoch_start
+            hands_per_second = hands_this_epoch / epoch_duration if epoch_duration > 0 else 0
+            self.performance_tracker['hands_per_second'].append(hands_per_second)
+            
+            self._log_progress(hands_played, training_step, hands_per_second)
+        
+        total_duration = time.time() - start_time
+        
+        final_checkpoint = self._save_final_checkpoint(hands_played, training_step, total_duration)
+        
+        logger.info(f"Training completed: {hands_played:,} hands in {total_duration:.2f}s")
+        
+        return {
+            'total_hands': hands_played,
+            'total_training_steps': training_step,
+            'total_duration': total_duration,
+            'final_checkpoint': final_checkpoint,
+            'training_statistics': self.training_statistics
+        }
+    
+    def _run_training_epoch(self) -> List[Dict]:
+        hands_per_game = min(100, max(10, self.config.total_hands // (self.config.parallel_games * 100)))
+        
+        opponent_agent = self._create_opponent_agent()
+        
+        game_results = self.game_manager.run_parallel_games(
+            self.main_agent,
+            opponent_agent,
+            hands_per_game=hands_per_game
+        )
+        
+        return game_results
+    
+    def _create_opponent_agent(self) -> SUMAgent:
+        opponent = SUMAgent(
+            name="SUM_Opponent",
+            num_strategies=self.config.num_strategies,
+            device=self.config.device
+        )
+        
+        if np.random.random() < 0.8:
+            opponent.neural_architecture.load_state_dict(
+                self.target_agent.neural_architecture.state_dict()
+            )
+        else:
+            opponent.neural_architecture.load_state_dict(
+                self.main_agent.neural_architecture.state_dict()
+            )
+        
+        opponent.set_training_mode(False)
+        
+        return opponent
+    
+    def _process_game_results(self, game_results: List[Dict]) -> int:
+        total_hands = 0
+        successful_games = 0
+        total_win_rate = 0.0
+        
+        for result in game_results:
+            if result.get('success', False):
+                successful_games += 1
+                hands_this_game = result.get('total_hands', 0)
+                total_hands += hands_this_game
+                
+                player_results = result.get('player_results', {})
+                main_agent_result = player_results.get(self.main_agent.name, {})
+                win_rate = main_agent_result.get('win_rate', 0.5)
+                total_win_rate += win_rate
+                
+                self._extract_experiences_from_game(result)
+        
+        if successful_games > 0:
+            average_win_rate = total_win_rate / successful_games
+            self.performance_tracker['recent_win_rates'].append(average_win_rate)
+            
+            self.training_statistics['total_games'] += successful_games
+            self.training_statistics['win_rate_history'].append(average_win_rate)
+        
+        self.training_statistics['total_hands_played'] += total_hands
+        
+        return total_hands
+    
+    def _extract_experiences_from_game(self, game_result: Dict):
+        if hasattr(self.main_agent, 'experience_buffer') and len(self.main_agent.experience_buffer) > 0:
+            recent_experiences = list(self.main_agent.experience_buffer)[-50:]
+            
+            for exp in recent_experiences:
+                priority = self._calculate_experience_priority(exp, game_result)
+                self.experience_buffer.add_experience(exp, priority)
+    
+    def _calculate_experience_priority(self, experience: Dict, game_result: Dict) -> float:
+        base_priority = 1.0
+        
+        player_results = game_result.get('player_results', {})
+        main_result = player_results.get(self.main_agent.name, {})
+        winnings = main_result.get('winnings', 0)
+        
+        if winnings > 0:
+            base_priority *= 1.5
+        elif winnings < 0:
+            base_priority *= 1.2
+        
+        model_outputs = experience.get('model_outputs', {})
+        uncertainty = model_outputs.get('uncertainty', torch.tensor(0.5))
+        if torch.is_tensor(uncertainty):
+            uncertainty_value = uncertainty.item()
+            if uncertainty_value > 0.7:
+                base_priority *= 1.3
+        
+        return base_priority
+    
+    def _training_step(self) -> Dict[str, float]:
+        batch = self.experience_buffer.sample_batch(
+            self.config.batch_size,
+            prioritized=True
+        )
+        
+        if len(batch) < self.config.batch_size // 2:
+            return {'error': 'Insufficient batch size'}
+        
+        try:
+            loss_info = self.main_agent.train_step(batch_size=len(batch))
+            
+            self.training_statistics['total_training_steps'] += 1
+            self.training_statistics['loss_history'].append(loss_info)
+            
+            return loss_info
+            
+        except Exception as e:
+            logger.error(f"Training step failed: {e}")
+            return {'error': str(e)}
+    
+    def _update_target_network(self):
+        self.target_agent.neural_architecture.load_state_dict(
+            self.main_agent.neural_architecture.state_dict()
+        )
+        logger.info("Target network updated")
+    
+    def _evaluate_progress(self, hands_played: int):
+        logger.info(f"Evaluating progress at {hands_played:,} hands")
+        
+        commitment_stats = self.main_agent.neural_architecture.get_commitment_stats()
+        commitment_rate = commitment_stats.get('commitment_rate', 0.0)
+        
+        self.training_statistics['commitment_rate_history'].append(commitment_rate)
+        
+        strategy_analysis = self.main_agent.get_strategy_analysis()
+        
+        evaluation_summary = {
+            'hands_played': hands_played,
+            'commitment_rate': commitment_rate,
+            'recent_win_rate': np.mean(list(self.performance_tracker['recent_win_rates'])) if self.performance_tracker['recent_win_rates'] else 0.5,
+            'average_hands_per_second': np.mean(list(self.performance_tracker['hands_per_second'])) if self.performance_tracker['hands_per_second'] else 0,
+            'strategy_analysis': strategy_analysis
+        }
+        
+        evaluation_file = os.path.join(
+            self.config.log_dir,
+            f"evaluation_{hands_played}.json"
+        )
+        
+        with open(evaluation_file, 'w') as f:
+            json.dump(evaluation_summary, f, indent=2, default=str)
+        
+        logger.info(f"Evaluation saved: {evaluation_file}")
+    
+    def _save_checkpoint(self, hands_played: int, training_step: int):
+        checkpoint_data = {
+            'hands_played': hands_played,
+            'training_step': training_step,
+            'model_state_dict': self.main_agent.neural_architecture.state_dict(),
+            'optimizer_state_dict': self.main_agent.optimizer.state_dict(),
+            'target_model_state_dict': self.target_agent.neural_architecture.state_dict(),
+            'training_statistics': self.training_statistics,
+            'config': self.config.__dict__
+        }
+        
+        checkpoint_path = os.path.join(
+            self.config.checkpoint_dir,
+            f"checkpoint_hands_{hands_played}.pt"
+        )
+        
+        torch.save(checkpoint_data, checkpoint_path)
+        logger.info(f"Checkpoint saved: {checkpoint_path}")
+    
+    def _save_final_checkpoint(self, hands_played: int, training_step: int, total_duration: float) -> str:
+        final_checkpoint = {
+            'hands_played': hands_played,
+            'training_step': training_step,
+            'total_duration': total_duration,
+            'model_state_dict': self.main_agent.neural_architecture.state_dict(),
+            'optimizer_state_dict': self.main_agent.optimizer.state_dict(),
+            'training_statistics': self.training_statistics,
+            'config': self.config.__dict__,
+            'final_performance': {
+                'average_win_rate': np.mean(list(self.performance_tracker['recent_win_rates'])) if self.performance_tracker['recent_win_rates'] else 0.5,
+                'average_hands_per_second': np.mean(list(self.performance_tracker['hands_per_second'])) if self.performance_tracker['hands_per_second'] else 0,
+                'commitment_rate': self.main_agent.neural_architecture.get_commitment_stats().get('commitment_rate', 0.0)
+            }
+        }
+        
+        final_path = os.path.join(
+            self.config.checkpoint_dir,
+            f"final_model_{int(time.time())}.pt"
+        )
+        
+        torch.save(final_checkpoint, final_path)
+        logger.info(f"Final checkpoint saved: {final_path}")
+        
+        return final_path
+    
+    def _log_progress(self, hands_played: int, training_step: int, hands_per_second: float):
+        if hands_played % 50000 == 0 or hands_played < 1000:
+            recent_win_rate = np.mean(list(self.performance_tracker['recent_win_rates'])) if self.performance_tracker['recent_win_rates'] else 0.5
+            
+            recent_losses = list(self.performance_tracker['recent_losses'])[-10:] if self.performance_tracker['recent_losses'] else []
+            avg_loss = np.mean([loss.get('total_loss', 0) for loss in recent_losses if isinstance(loss, dict)]) if recent_losses else 0
+            
+            progress_pct = (hands_played / self.config.total_hands) * 100
+            
+            logger.info(
+                f"Progress: {progress_pct:.1f}% | "
+                f"Hands: {hands_played:,}/{self.config.total_hands:,} | "
+                f"Steps: {training_step:,} | "
+                f"Win Rate: {recent_win_rate:.3f} | "
+                f"Avg Loss: {avg_loss:.4f} | "
+                f"Speed: {hands_per_second:.1f} hands/s"
+            )
+    
+    def load_checkpoint(self, checkpoint_path: str) -> bool:
+        try:
+            checkpoint = torch.load(checkpoint_path, map_location=self.device)
+            
+            self.main_agent.neural_architecture.load_state_dict(checkpoint['model_state_dict'])
+            self.main_agent.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+            
+            if 'target_model_state_dict' in checkpoint:
+                self.target_agent.neural_architecture.load_state_dict(checkpoint['target_model_state_dict'])
+            
+            self.training_statistics = checkpoint.get('training_statistics', self.training_statistics)
+            
+            logger.info(f"Checkpoint loaded successfully: {checkpoint_path}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Failed to load checkpoint: {e}")
+            return False
+    
+    def get_training_summary(self) -> Dict[str, Any]:
+        return {
+            'training_statistics': self.training_statistics,
+            'current_performance': {
+                'recent_win_rate': np.mean(list(self.performance_tracker['recent_win_rates'])) if self.performance_tracker['recent_win_rates'] else 0.5,
+                'recent_hands_per_second': np.mean(list(self.performance_tracker['hands_per_second'])) if self.performance_tracker['hands_per_second'] else 0,
+                'experience_buffer_size': len(self.experience_buffer)
+            },
+            'model_info': {
+                'total_parameters': sum(p.numel() for p in self.main_agent.neural_architecture.parameters()),
+                'device': str(self.device),
+                'num_strategies': self.config.num_strategies
+            }
+        }
+
+def run_self_play_training(config: TrainingConfig = None) -> Dict[str, Any]:
+    if config is None:
+        config = TrainingConfig()
+    
+    trainer = SelfPlayTrainer(config)
+    
+    try:
+        results = trainer.train()
+        return results
+    except KeyboardInterrupt:
+        logger.info("Training interrupted by user")
+        return trainer.get_training_summary()
+    except Exception as e:
+        logger.error(f"Training failed: {e}")
+        return {'error': str(e), 'summary': trainer.get_training_summary()}
+
+if __name__ == "__main__":
+    config = TrainingConfig(
+        total_hands=1_000_000,
+        parallel_games=32,
+        device="cuda" if torch.cuda.is_available() else "cpu"
+    )
+    
+    results = run_self_play_training(config)
+    print(json.dumps(results, indent=2, default=str))

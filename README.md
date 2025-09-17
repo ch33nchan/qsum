@@ -1,340 +1,323 @@
-# Strategic Uncertainty Management (SUM) Poker Research Framework
+# SUM Poker Agent: Strategic Uncertainty Management Research Framework
 
-A comprehensive research framework implementing Strategic Uncertainty Management (SUM) for poker AI, featuring quantum-inspired decision-making processes with GPU acceleration for high-performance academic research.
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-red.svg)](https://pytorch.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## Research Focus
+A state-of-the-art research framework implementing Strategic Uncertainty Management (SUM) for poker agents, featuring novel neural architectures, multi-objective loss functions, and comprehensive experimental protocols.
 
-This framework implements and evaluates Strategic Uncertainty Management algorithms in poker environments, providing:
+## 🎯 Overview
 
-- **Advanced SUM Implementation**: Quantum-inspired superposition states with strategic collapse mechanisms
-- **GPU-Accelerated Research**: CUDA-optimized computations for large-scale experiments
-- **Publication-Quality Data**: Comprehensive metrics, statistical analysis, and research visualizations
-- **Real Poker Environment**: PyPokerEngine integration with authentic game mechanics
-- **Academic Validation**: Rigorous experimental design suitable for peer-reviewed publication
+This repository implements the SUM (Strategic Uncertainty Management) poker agent, a novel approach to poker AI that maintains multiple strategic options in superposition until committing to specific actions based on information-theoretic principles. The framework includes:
 
-## 🚀 Quick Start (GPU Mode)
+- **Novel Neural Architecture**: GameEncoder, HistoryEncoder, StrategyHead, WeightHead, and CommitmentHead
+- **Multi-Objective Loss Function**: Strategy optimization, commitment timing, and deception rewards
+- **Comprehensive Benchmarking**: Against CFR, Deep CFR, NFSP, Pluribus-style, and commercial bots
+- **GPU-Accelerated Training**: Parallel self-play with experience replay
+- **Rigorous Evaluation**: Statistical analysis, ablation studies, and robustness testing
 
-### 1. Install Dependencies
-```bash
-# Install PyTorch with CUDA support
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
-
-# Install other dependencies
-pip install -r requirements.txt
-```
-
-### 2. Run GPU-Accelerated Experiments
-```bash
-# Poker Tournament (GPU)
-python experiments/real_poker_experiments.py --device cuda --hands 500 --progress
-
-# Quake Combat (GPU with optimization)
-python experiments/real_quake_experiments.py --device cuda --episodes 100 --progress --cuda-optimize
-
-# Comprehensive GPU Runner
-python run_gpu_experiments.py --experiment both --device cuda --progress
-```
-
-### 3. Setup Git Repository
-```bash
-python run_gpu_experiments.py --setup-git
-```
-
-## 📊 Performance Comparison
-
-| Mode | Poker (500 hands) | Quake (100 episodes) | Speedup |
-|------|-------------------|----------------------|----------|
-| CPU  | ~8-12 minutes     | ~15-20 minutes       | 1.0x     |
-| GPU  | ~3-5 minutes      | ~8-12 minutes        | **3-5x** |
-
-## 🎮 Experiment Commands
-
-### Poker Tournament
-```bash
-# Basic CPU mode
-python experiments/real_poker_experiments.py --device cpu --hands 200
-
-# GPU mode with progress
-python experiments/real_poker_experiments.py --device cuda --hands 500 --progress
-
-# High-performance GPU mode
-CUDA_VISIBLE_DEVICES=0 python experiments/real_poker_experiments.py --device cuda --hands 1000 --progress
-```
-
-### Quake Combat
-```bash
-# Basic CPU mode
-python experiments/real_quake_experiments.py --device cpu --episodes 30
-
-# GPU mode with CUDA optimization
-python experiments/real_quake_experiments.py --device cuda --episodes 100 --progress --cuda-optimize
-
-# Multi-GPU setup
-CUDA_VISIBLE_DEVICES=0,1 python experiments/real_quake_experiments.py --device cuda --episodes 200 --progress
-```
-
-### Comprehensive Runner
-```bash
-# Run both experiments on GPU
-python run_gpu_experiments.py --experiment both --device cuda --hands 500 --episodes 100 --progress
-
-# GPU benchmark suite
-python run_gpu_experiments.py --benchmark --device cuda
-
-# Setup git repository
-python run_gpu_experiments.py --setup-git
-```
-
-## 🔧 GPU Setup
-
-### Requirements
-- NVIDIA GPU with CUDA Compute Capability 7.0+
-- CUDA 11.8 or later
-- 4GB+ GPU memory recommended
-- PyTorch with CUDA support
-
-### Installation
-```bash
-# Check CUDA availability
-nvidia-smi
-
-# Install CUDA-enabled PyTorch
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
-
-# Verify GPU setup
-python -c "import torch; print(f'CUDA available: {torch.cuda.is_available()}'); print(f'GPU: {torch.cuda.get_device_name(0) if torch.cuda.is_available() else "None"}')"
-```
-
-### GPU Memory Optimization
-- Automatic memory cleanup after experiments
-- Batch processing for efficient GPU utilization
-- Memory monitoring and reporting
-- CUDA kernel optimization for superposition calculations
-
-## 📈 Research Features
-
-### Strategic Uncertainty Management
-- **Quantum Superposition**: Probabilistic action states until collapse
-- **Strategic Collapse**: Context-aware decision crystallization
-- **Entropy Calculation**: Real-time uncertainty quantification
-- **GPU Acceleration**: Vectorized superposition computations
-
-### Real Game Environments
-- **Authentic Poker**: PyPokerEngine tournaments with real opponents
-- **3D Combat**: ViZDoom Quake III Arena with enemy AI
-- **Real Physics**: Actual game mechanics, not simulations
-- **Performance Metrics**: Comprehensive research data collection
-
-## 📊 Generated Results
-
-Each experiment generates:
-- **📈 Analysis Plots**: 6-panel research visualizations (PNG/PDF)
-- **📋 LaTeX Tables**: Publication-ready statistical summaries
-- **💾 JSON Data**: Complete raw metrics for further analysis
-- **🎯 Performance Reports**: GPU vs CPU benchmarks
-
-## 🔬 Project Overview
-
-This project implements Strategic Uncertainty Management (SUM) agents for complex gaming environments, incorporating quantum-inspired decision-making processes that maintain strategic ambiguity until optimal collapse points. Now enhanced with GPU acceleration for high-performance research.
-
-## Project Structure
+## 📁 Project Structure
 
 ```
 q-agent/
-├── src/                          # Main training scripts
-│   ├── sum_cpu.py               # CPU training (quick testing)
-│   └── sum_gpu.py               # GPU training (research-grade)
-├── core/                         # Core implementation
-│   ├── agent.py                 # SUM agent with research metrics
-│   ├── baseline_agents.py       # Classical baseline agents
-│   ├── environment.py           # Poker environment
-│   ├── network.py               # Neural network architectures
-│   └── utils.py                 # Shared utilities
-├── config/                       # Configuration files
-│   ├── cpu_config.py           # CPU training configuration
-│   └── gpu_config.py           # GPU training configuration
-├── docs/                        # Research papers and documentation
-└── results/                     # Training and experiment results
+├── agents/                     # Agent implementations
+│   ├── sum_agent.py           # Main SUM agent
+│   └── baseline_agents.py     # Benchmark agents (CFR, Deep CFR, etc.)
+├── analysis/                   # Research analysis tools
+│   └── research_analyzer.py   # Data analysis and visualization
+├── docs/                       # Research documentation
+│   ├── lossfunk_1.pdf        # Research paper
+│   ├── lossfunk_1 (1).pdf    # Additional documentation
+│   └── plan.txt              # Research plan
+├── environments/               # Poker environments
+│   └── poker_environment.py   # PyPokerEngine integration
+├── evaluation/                 # Evaluation systems
+│   └── benchmark_system.py    # Comprehensive benchmarking
+├── experiments/                # Experimental frameworks
+│   ├── cpu_experiments.py     # CPU-based ablation studies
+│   └── real_poker_experiments.py # Legacy experiments
+├── sum/                        # Core SUM algorithm
+│   ├── neural_architecture.py # Neural network components
+│   └── loss_functions.py      # Multi-objective loss functions
+├── training/                   # Training infrastructure
+│   └── self_play_trainer.py   # GPU-accelerated self-play
+├── run_research_pipeline.py   # Main research execution script
+└── requirements.txt           # Dependencies
 ```
 
-## Quick Start
+## 🚀 Quick Start
+
+### Installation
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/your-username/q-agent.git
+   cd q-agent
+   ```
+
+2. **Create a virtual environment:**
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+
+3. **Install dependencies:**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+### Running the Complete Research Pipeline
+
+**Full Research Study (3-4 hours):**
+```bash
+python run_research_pipeline.py
+```
+
+**GPU Training Only:**
+```bash
+python run_research_pipeline.py --phases gpu_training
+```
+
+**CPU Experiments Only:**
+```bash
+python run_research_pipeline.py --phases cpu_experiments
+```
+
+**Custom Configuration:**
+```bash
+python run_research_pipeline.py --config research_config.json --gpu-hands 5000000
+```
+
+### Environment Validation
 
 ```bash
-# Quick CPU training (30 seconds)
-python src/sum_cpu.py
-
-# Research-grade GPU training (45-90 minutes)
-python src/sum_gpu.py
+python run_research_pipeline.py --validate-only
 ```
 
-## Research Validation
+## 🧠 SUM Algorithm Architecture
 
-The GPU training script includes comprehensive research-grade validation:
+### Core Components
 
-**Statistical Analysis**:
-- Multiple runs with different random seeds for statistical validity
-- t-tests, effect sizes, and confidence intervals
-- Baseline comparisons against classical poker strategies
+1. **GameEncoder**: Processes current game state (cards, positions, stacks, pot)
+2. **HistoryEncoder**: LSTM-based action sequence encoding
+3. **StrategyHead**: Generates multiple strategic options in parallel
+4. **WeightHead**: Computes strategy mixing weights
+5. **CommitmentHead**: Determines when to collapse superposition
 
-**Performance Metrics**:
-- Win rates against multiple opponent types
-- Strategic uncertainty utilization tracking
-- Collapse event analysis and timing optimization
-- Deception effectiveness measurements
+### Multi-Objective Loss Function
 
-## Core Implementation Features
-
-### QuantumPokerAgent (Enhanced SUM Agent)
-- **Superposition state representation**: Complex-valued probability amplitudes
-- **Strategic collapse detection**: Opponent action-triggered collapse mechanisms
-- **Comprehensive tracking**: Detailed metrics for all experiments
-- **13-category hand strength**: Simplified but comprehensive hand evaluation
-
-### Classical Baseline Agents
-- **Random Agent**: Pure random baseline
-- **Tight-Aggressive**: Conservative classical strategy
-- **Loose-Passive**: Liberal classical strategy
-- **Classical Mixed Strategy**: Game theory optimal mixed strategies
-- **Nash Equilibrium**: Theoretical optimal play approximation
-
-### Research-Grade Features
-- **Statistical validation**: t-tests, effect sizes, confidence intervals
-- **Multiple random seeds**: Ensures reproducible results
-- **Comprehensive metrics**: 20+ tracked metrics per experiment
-- **Publication-ready plots**: High-resolution figures with error bars
-- **LaTeX table generation**: Ready for academic papers
-
-## Usage Examples
-
-### Development and Testing
-```bash
-# Quick validation (30 seconds)
-python src/sum_cpu.py
+```python
+L_total = L_strategy + λ_commitment * L_commitment + λ_deception * L_deception
 ```
 
-### Research Paper Generation
-```bash
-# Full research validation (45-90 minutes)
-python src/sum_gpu.py
+- **Strategy Loss**: Cross-entropy for action prediction
+- **Commitment Loss**: Information-theoretic timing optimization
+- **Deception Loss**: Opponent confusion and bluff success rewards
 
-# This generates:
-# - Statistical significance tests
-# - Publication-quality plots
-# - LaTeX tables
-# - Comprehensive research data
+## 🔬 Experimental Framework
+
+### Phase 1: GPU Training (Self-Play)
+- **Duration**: 2-3 hours
+- **Hands**: 10M+ poker hands
+- **Parallel Games**: 64 simultaneous environments
+- **Experience Replay**: Prioritized sampling
+- **Target Networks**: Periodic updates for stability
+
+### Phase 2: CPU Experiments (Ablation Studies)
+- **Ablation Studies**: Commitment vs. Deception mechanisms
+- **Hyperparameter Sweeps**: Strategy count, loss weights, learning rates
+- **Robustness Testing**: Different stack sizes and game conditions
+
+### Phase 3: Benchmark Gauntlet
+- **Opponents**: CFR, Deep CFR, NFSP, Pluribus-style, Commercial bots
+- **Statistical Analysis**: Confidence intervals, significance testing
+- **Performance Metrics**: mBB/100, win rates, effect sizes
+
+### Phase 4: Analysis and Visualization
+- **Publication-Quality Plots**: Performance charts, sensitivity analysis
+- **LaTeX Tables**: Statistical results for academic papers
+- **Comprehensive Reports**: Markdown summaries with insights
+
+## 📊 Results and Analysis
+
+After running experiments, results are automatically organized:
+
+```
+research_results/session_YYYYMMDD_HHMMSS/
+├── checkpoints/               # Trained model checkpoints
+├── training_logs/            # Training progress logs
+├── cpu_experiments/          # Ablation study results
+├── benchmark_results/        # Gauntlet performance data
+├── analysis/                 # Generated plots and tables
+│   ├── plots/               # PNG visualizations
+│   ├── latex_tables/        # Academic table formatting
+│   └── research_analysis_report.md
+└── RESEARCH_REPORT.md        # Executive summary
 ```
 
-## Results and Outputs
+### Key Performance Metrics
 
-### Training Results
-- **CPU**: `results/cpu/training_plots.png`, `training_results.json`
-- **GPU**: `results/research_gpu/experiment_TIMESTAMP/` (comprehensive research data)
+- **mBB/100**: Milli-big blinds per 100 hands (profit measure)
+- **Win Rate**: Percentage of profitable sessions
+- **Statistical Significance**: p-values and effect sizes
+- **Commitment Rate**: Frequency of strategy collapse
+- **Deception Success**: Bluff and value bet effectiveness
 
-### Research Outputs
-- **Plots**: High-resolution PNG and PDF figures
-- **Data**: JSON files with all experimental data
-- **Statistics**: Statistical test results and significance analysis
-- **LaTeX**: Ready-to-use tables for academic papers
+## 🛠 Advanced Usage
 
-### Key Files Generated
-```
-results/
-├── research_plots.png
-├── complete_experimental_results.json
-├── research_summary.json
-└── results_table.tex
-```
+### Custom Training Configuration
 
-## Research Paper Integration
-
-The experiment framework generates publication-ready materials:
-
-1. **Statistical Tables**: LaTeX format with significance tests
-2. **High-Quality Figures**: 300 DPI plots with error bars
-3. **Comprehensive Data**: JSON files with all metrics
-4. **Reproducible Results**: Fixed random seeds and detailed logging
-
-### Example Paper Sections
-
-**Methods Section**:
-- Experimental design with multiple runs
-- Statistical testing methodology
-- Baseline agent descriptions
-- Evaluation metrics definitions
-
-**Results Section**:
-- Statistical significance tables
-- Effect size analysis
-- Uncertainty utilization evidence
-- Strategic behavior analysis
-
-## Configuration Options
-
-### Quick Test (Development)
-- 100 hands per experiment
-- ~5 minutes total runtime
-- Basic validation
-
-### Full Research (Publication)
-- 5000 hands per experiment
-- ~2-4 hours total runtime
-- Comprehensive statistical validation
-- Publication-ready outputs
-
-### Custom Configuration
-Edit `experiments/experiment_config.py` to customize:
-- Number of hands per experiment
-- Collapse detection parameters
-- Deception tracking thresholds
-- Performance evaluation criteria
-
-## Requirements
-
-```bash
-# Core dependencies
-pip install torch numpy matplotlib seaborn pandas scipy
-
-# Optional: GPU acceleration
-# CUDA-compatible PyTorch installation
-```
-
-## Academic Citation
-
-If you use this implementation in your research, please cite:
-
-```bibtex
-@article{sum_poker_2024,
-  title={Strategic Uncertainty Management in Poker: A Quantum-Inspired Approach},
-  author={[Your Name]},
-  journal={[Journal Name]},
-  year={2024}
+Create `research_config.json`:
+```json
+{
+  "device": "cuda",
+  "gpu_training": {
+    "total_hands": 20000000,
+    "parallel_games": 128,
+    "batch_size": 512,
+    "num_strategies": 12,
+    "lambda_commitment": 0.4,
+    "lambda_deception": 0.15
+  },
+  "phases_to_run": ["gpu_training", "benchmark_gauntlet", "analysis"]
 }
 ```
 
-## Key Research Contributions
+### Individual Component Testing
 
-1. **Novel Strategic Framework**: First implementation of quantum-inspired uncertainty management in poker
-2. **Comprehensive Validation**: Three-experiment framework with statistical rigor
-3. **Practical Implementation**: Working code with research-grade experimental validation
-4. **Reproducible Results**: Fixed seeds, detailed logging, and comprehensive documentation
+**Train SUM Agent:**
+```python
+from agents.sum_agent import SUMAgent
+from training.self_play_trainer import SelfPlayTrainer, TrainingConfig
 
-## Performance Expectations
+agent = SUMAgent(name="Test_SUM", device="cuda")
+config = TrainingConfig(total_hands=1_000_000)
+trainer = SelfPlayTrainer(config)
+results = trainer.train()
+```
 
-### CPU Training
-- **Runtime**: ~0.5 seconds
-- **Win Rate**: 75% against simple opponents
-- **Purpose**: Quick validation and testing
+**Run Benchmark:**
+```python
+from evaluation.benchmark_system import BenchmarkGauntlet, BenchmarkConfig
+from agents.baseline_agents import BaselineAgentFactory
 
-### GPU Research Training
-- **Runtime**: 45-90 minutes
-- **Statistical Power**: 95% confidence intervals
-- **Baselines**: 4+ different opponent types
-- **Purpose**: Academic publication validation
+config = BenchmarkConfig(hands_per_match=100_000)
+gauntlet = BenchmarkGauntlet(config)
+results = gauntlet.run_gauntlet(trained_agent)
+```
 
-### Full Experiments
-- **Runtime**: 2-4 hours
-- **Data Points**: 15,000+ hands across all experiments
-- **Statistical Tests**: t-tests, effect sizes, significance analysis
-- **Outputs**: Publication-ready figures and tables
+**Analyze Results:**
+```python
+from analysis.research_analyzer import ResearchDataAnalyzer
 
-This implementation provides everything needed for rigorous academic validation of the Strategic Uncertainty Management approach to poker AI.
+analyzer = ResearchDataAnalyzer("research_results/session_20240115_143022")
+report = analyzer.generate_comprehensive_report()
+```
+
+## 🔧 Development
+
+### Code Quality
+
+```bash
+# Format code
+black .
+
+# Lint code
+flake8 .
+
+# Type checking
+mypy .
+
+# Run tests
+pytest tests/ -v --cov=.
+```
+
+### Adding New Baseline Agents
+
+1. Inherit from `BasePokerPlayer`
+2. Implement required methods
+3. Add to `BaselineAgentFactory`
+4. Update benchmark configuration
+
+### Extending SUM Architecture
+
+1. Modify `SUMNeuralArchitecture` in `sum/neural_architecture.py`
+2. Update loss functions in `sum/loss_functions.py`
+3. Adjust training configuration
+4. Run ablation studies to validate improvements
+
+## 📈 Performance Expectations
+
+### Hardware Requirements
+
+**Minimum (CPU-only):**
+- 8GB RAM
+- 4 CPU cores
+- 10GB disk space
+
+**Recommended (GPU):**
+- 16GB+ RAM
+- NVIDIA GPU with 8GB+ VRAM
+- 50GB disk space
+- CUDA 12.0+
+
+### Timing Estimates
+
+| Phase | CPU (8 cores) | GPU (RTX 4090) |
+|-------|---------------|----------------|
+| Training (10M hands) | 8-12 hours | 2-3 hours |
+| CPU Experiments | 4-6 hours | N/A |
+| Benchmark Gauntlet | 2-3 hours | 30-45 minutes |
+| Analysis | 10-15 minutes | 5-10 minutes |
+| **Total** | **14-21 hours** | **3-4 hours** |
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+### Research Contributions
+
+- Novel neural architectures for poker AI
+- Improved loss function formulations
+- Additional baseline agent implementations
+- Enhanced evaluation metrics
+- Optimization improvements
+
+## 📚 Citation
+
+If you use this research framework in your work, please cite:
+
+```bibtex
+@article{sum_poker_2024,
+  title={Strategic Uncertainty Management in Poker: A Novel Neural Architecture for Multi-Agent Game Theory},
+  author={[Your Name]},
+  journal={[Journal Name]},
+  year={2024},
+  note={Available at: https://github.com/your-username/q-agent}
+}
+```
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- PyPokerEngine for poker environment simulation
+- PyTorch team for deep learning framework
+- Poker AI research community for foundational work
+- Contributors and beta testers
+
+## 📞 Support
+
+- **Issues**: [GitHub Issues](https://github.com/your-username/q-agent/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/your-username/q-agent/discussions)
+- **Email**: your.email@domain.com
+
+---
+
+**Built with ❤️ for advancing poker AI research**
