@@ -1,0 +1,533 @@
+{
+  "session_id": "20250919_001557",
+  "config": {
+    "device": "cuda",
+    "gpu_training": {
+      "total_hands": 5000,
+      "parallel_games": 16,
+      "batch_size": 256,
+      "num_strategies": 8,
+      "lambda_commitment": 0.3,
+      "lambda_deception": 0.1,
+      "save_frequency": 1000,
+      "evaluation_frequency": 5000,
+      "learning_rate": 0.001,
+      "target_update_frequency": 1000
+    },
+    "cpu_experiments": {
+      "training_hands": 1000000,
+      "evaluation_hands": 100000,
+      "num_trials": 3
+    },
+    "benchmark_gauntlet": {
+      "hands_per_match": 1000000,
+      "num_trials": 3,
+      "generate_plots": true
+    },
+    "phases_to_run": [
+      "gpu_training"
+    ],
+    "results_dir": "research_results",
+    "save_checkpoints": true,
+    "validate_environment": true
+  },
+  "start_time": 1758240957.8278286,
+  "phases_completed": [
+    "gpu_training"
+  ],
+  "phase_results": {
+    "gpu_training": {
+      "training_results": {
+        "total_hands": 5040,
+        "total_training_steps": 63,
+        "total_duration": 14907.616938114166,
+        "final_checkpoint": "research_results/session_20250919_001557/checkpoints/final_model_1758255868.pt",
+        "training_statistics": {
+          "total_hands_played": 5040,
+          "total_training_steps": 63,
+          "total_games": 1008,
+          "successful_games": 1008,
+          "failed_games": 0,
+          "average_game_duration": 0.0,
+          "win_rate_history": [],
+          "loss_history": [
+            {
+              "total_loss": 0.1433698832988739,
+              "strategy_loss": 0.007684187963604927,
+              "commitment_loss": 0.7843484282493591,
+              "deception_loss": -1.1868183612823486,
+              "regularization_loss": 0.019063007086515427
+            },
+            {
+              "total_loss": -0.0505058728158474,
+              "strategy_loss": 0.04269691929221153,
+              "commitment_loss": 0.07451347261667252,
+              "deception_loss": -1.308087706565857,
+              "regularization_loss": 0.015251937322318554
+            },
+            {
+              "total_loss": -0.07886678725481033,
+              "strategy_loss": 0.010780764743685722,
+              "commitment_loss": 0.00420392444357276,
+              "deception_loss": -1.0364799499511719,
+              "regularization_loss": 0.01273927092552185
+            },
+            {
+              "total_loss": -0.08870527148246765,
+              "strategy_loss": 0.009752953425049782,
+              "commitment_loss": 0.00033494929084554315,
+              "deception_loss": -1.0700831413269043,
+              "regularization_loss": 0.008449605666100979
+            },
+            {
+              "total_loss": -0.11785845458507538,
+              "strategy_loss": 0.015209557488560677,
+              "commitment_loss": 8.049253665376455e-05,
+              "deception_loss": -1.4391072988510132,
+              "regularization_loss": 0.010818571783602238
+            },
+            {
+              "total_loss": -0.09510396420955658,
+              "strategy_loss": 0.04796760529279709,
+              "commitment_loss": 2.3625554604222998e-05,
+              "deception_loss": -1.5282772779464722,
+              "regularization_loss": 0.009749071672558784
+            },
+            {
+              "total_loss": -0.11165741831064224,
+              "strategy_loss": 0.017430635169148445,
+              "commitment_loss": 7.614838068548124e-06,
+              "deception_loss": -1.394955039024353,
+              "regularization_loss": 0.010405166074633598
+            },
+            {
+              "total_loss": -0.11593262851238251,
+              "strategy_loss": 0.008421465754508972,
+              "commitment_loss": 4.569640168483602e-06,
+              "deception_loss": -1.3430004119873047,
+              "regularization_loss": 0.009944570250809193
+            },
+            {
+              "total_loss": -0.11978039145469666,
+              "strategy_loss": 0.008403384126722813,
+              "commitment_loss": 4.0007462303037755e-06,
+              "deception_loss": -1.3742153644561768,
+              "regularization_loss": 0.009236562997102737
+            },
+            {
+              "total_loss": -0.12376488745212555,
+              "strategy_loss": 0.012024207971990108,
+              "commitment_loss": 2.843413085429347e-06,
+              "deception_loss": -1.444746971130371,
+              "regularization_loss": 0.008684754371643066
+            },
+            {
+              "total_loss": -0.11958323419094086,
+              "strategy_loss": 0.020961083471775055,
+              "commitment_loss": 3.086078322667163e-06,
+              "deception_loss": -1.5141757726669312,
+              "regularization_loss": 0.007086900994181633
+            },
+            {
+              "total_loss": -0.116570845246315,
+              "strategy_loss": 0.021002689376473427,
+              "commitment_loss": 1.992087845792412e-06,
+              "deception_loss": -1.5087847709655762,
+              "regularization_loss": 0.005760452710092068
+            },
+            {
+              "total_loss": -0.1154789924621582,
+              "strategy_loss": 0.015456744469702244,
+              "commitment_loss": 1.3945035561846453e-06,
+              "deception_loss": -1.4634640216827393,
+              "regularization_loss": 0.0044342996552586555
+            },
+            {
+              "total_loss": -0.11488576978445053,
+              "strategy_loss": 0.011188545264303684,
+              "commitment_loss": 1.6931156778809964e-06,
+              "deception_loss": -1.436905860900879,
+              "regularization_loss": 0.003246752545237541
+            },
+            {
+              "total_loss": -0.11325319111347198,
+              "strategy_loss": 0.00825723260641098,
+              "commitment_loss": 1.19720607472118e-06,
+              "deception_loss": -1.4170267581939697,
+              "regularization_loss": 0.002479103859513998
+            },
+            {
+              "total_loss": -0.10969123244285583,
+              "strategy_loss": 0.007645193953067064,
+              "commitment_loss": 9.415557542524766e-07,
+              "deception_loss": -1.4042659997940063,
+              "regularization_loss": 0.0020259458106011152
+            },
+            {
+              "total_loss": -0.105980783700943,
+              "strategy_loss": 0.008518125861883163,
+              "commitment_loss": 8.029059586078802e-07,
+              "deception_loss": -1.4096362590789795,
+              "regularization_loss": 0.0017958922544494271
+            },
+            {
+              "total_loss": -0.10315702110528946,
+              "strategy_loss": 0.009738105349242687,
+              "commitment_loss": 8.753955285101256e-07,
+              "deception_loss": -1.432772159576416,
+              "regularization_loss": 0.0017264493508264422
+            },
+            {
+              "total_loss": -0.10045631974935532,
+              "strategy_loss": 0.010513895191252232,
+              "commitment_loss": 7.797163448231004e-07,
+              "deception_loss": -1.4538753032684326,
+              "regularization_loss": 0.0017049538437277079
+            },
+            {
+              "total_loss": -0.09724584966897964,
+              "strategy_loss": 0.011932212859392166,
+              "commitment_loss": 7.967054784785432e-07,
+              "deception_loss": -1.4785244464874268,
+              "regularization_loss": 0.001711110002361238
+            },
+            {
+              "total_loss": -0.09369800984859467,
+              "strategy_loss": 0.012137945741415024,
+              "commitment_loss": 5.355078087632137e-07,
+              "deception_loss": -1.4837945699691772,
+              "regularization_loss": 0.001739063998684287
+            },
+            {
+              "total_loss": -0.09017457813024521,
+              "strategy_loss": 0.011648112908005714,
+              "commitment_loss": 8.799638067102933e-07,
+              "deception_loss": -1.4798983335494995,
+              "regularization_loss": 0.0017700163880363107
+            },
+            {
+              "total_loss": -0.0870404839515686,
+              "strategy_loss": 0.009982449002563953,
+              "commitment_loss": 8.732616265660909e-07,
+              "deception_loss": -1.4640603065490723,
+              "regularization_loss": 0.001800987054593861
+            },
+            {
+              "total_loss": -0.08380510658025742,
+              "strategy_loss": 0.008594347164034843,
+              "commitment_loss": 7.343691663663776e-07,
+              "deception_loss": -1.44953453540802,
+              "regularization_loss": 0.001820179051719606
+            },
+            {
+              "total_loss": -0.08037655055522919,
+              "strategy_loss": 0.007384045980870724,
+              "commitment_loss": 6.210689207364339e-07,
+              "deception_loss": -1.4334897994995117,
+              "regularization_loss": 0.0018324273405596614
+            },
+            {
+              "total_loss": -0.07697468250989914,
+              "strategy_loss": 0.006877110339701176,
+              "commitment_loss": 6.654241815340356e-07,
+              "deception_loss": -1.428161382675171,
+              "regularization_loss": 0.001837792107835412
+            },
+            {
+              "total_loss": -0.07343874871730804,
+              "strategy_loss": 0.006221193354576826,
+              "commitment_loss": 5.735613513024873e-07,
+              "deception_loss": -1.4174275398254395,
+              "regularization_loss": 0.0018420673441141844
+            },
+            {
+              "total_loss": -0.06990080326795578,
+              "strategy_loss": 0.005946408491581678,
+              "commitment_loss": 6.200205575623841e-07,
+              "deception_loss": -1.4125745296478271,
+              "regularization_loss": 0.0018442991422489285
+            },
+            {
+              "total_loss": -0.06629570573568344,
+              "strategy_loss": 0.005777284502983093,
+              "commitment_loss": 5.392633397605096e-07,
+              "deception_loss": -1.4079792499542236,
+              "regularization_loss": 0.0018458504928275943
+            },
+            {
+              "total_loss": -0.0627901628613472,
+              "strategy_loss": 0.005853977985680103,
+              "commitment_loss": 8.592012363806134e-07,
+              "deception_loss": -1.4098132848739624,
+              "regularization_loss": 0.0018463965971022844
+            },
+            {
+              "total_loss": -0.0628422349691391,
+              "strategy_loss": 0.005988704971969128,
+              "commitment_loss": 7.858720891817939e-07,
+              "deception_loss": -1.4135444164276123,
+              "regularization_loss": 0.0018461282597854733
+            },
+            {
+              "total_loss": -0.06287914514541626,
+              "strategy_loss": 0.006075207609683275,
+              "commitment_loss": 5.764968022958783e-07,
+              "deception_loss": -1.4159992933273315,
+              "regularization_loss": 0.0018455120734870434
+            },
+            {
+              "total_loss": -0.06291291862726212,
+              "strategy_loss": 0.006096817087382078,
+              "commitment_loss": 5.935162903369928e-07,
+              "deception_loss": -1.4171011447906494,
+              "regularization_loss": 0.0018452131189405918
+            },
+            {
+              "total_loss": -0.06294640898704529,
+              "strategy_loss": 0.006127385422587395,
+              "commitment_loss": 7.870273748267209e-07,
+              "deception_loss": -1.4183719158172607,
+              "regularization_loss": 0.0018446615431457758
+            },
+            {
+              "total_loss": -0.06294746696949005,
+              "strategy_loss": 0.00611471151933074,
+              "commitment_loss": 6.874703899484302e-07,
+              "deception_loss": -1.4181320667266846,
+              "regularization_loss": 0.0018443040316924453
+            },
+            {
+              "total_loss": -0.0629345029592514,
+              "strategy_loss": 0.006221720017492771,
+              "commitment_loss": 7.338175009863335e-07,
+              "deception_loss": -1.4200068712234497,
+              "regularization_loss": 0.001843999489210546
+            },
+            {
+              "total_loss": -0.0629601925611496,
+              "strategy_loss": 0.00596913555637002,
+              "commitment_loss": 8.146532763930736e-07,
+              "deception_loss": -1.415471076965332,
+              "regularization_loss": 0.0018440913408994675
+            },
+            {
+              "total_loss": -0.06297712028026581,
+              "strategy_loss": 0.006042066030204296,
+              "commitment_loss": 1.0697916650315165e-06,
+              "deception_loss": -1.4172661304473877,
+              "regularization_loss": 0.0018439480336382985
+            },
+            {
+              "total_loss": -0.06298674643039703,
+              "strategy_loss": 0.0058820899575948715,
+              "commitment_loss": 1.0027860071204486e-06,
+              "deception_loss": -1.4142608642578125,
+              "regularization_loss": 0.0018440476851537824
+            },
+            {
+              "total_loss": -0.06300660967826843,
+              "strategy_loss": 0.005705695133656263,
+              "commitment_loss": 1.0161048749068868e-06,
+              "deception_loss": -1.4111350774765015,
+              "regularization_loss": 0.001844298094511032
+            },
+            {
+              "total_loss": -0.06302019953727722,
+              "strategy_loss": 0.0057969726622104645,
+              "commitment_loss": 1.0747370424724068e-06,
+              "deception_loss": -1.4132304191589355,
+              "regularization_loss": 0.0018441944848746061
+            },
+            {
+              "total_loss": -0.06300554424524307,
+              "strategy_loss": 0.005777039565145969,
+              "commitment_loss": 1.1782891533584916e-06,
+              "deception_loss": -1.4125434160232544,
+              "regularization_loss": 0.0018444278975948691
+            },
+            {
+              "total_loss": -0.0630127340555191,
+              "strategy_loss": 0.005857759155333042,
+              "commitment_loss": 1.6689791664248332e-06,
+              "deception_loss": -1.4143009185791016,
+              "regularization_loss": 0.0018443280132487416
+            },
+            {
+              "total_loss": -0.0630238801240921,
+              "strategy_loss": 0.0059570008888840675,
+              "commitment_loss": 1.2586109505718923e-06,
+              "deception_loss": -1.4165089130401611,
+              "regularization_loss": 0.0018444093875586987
+            },
+            {
+              "total_loss": -0.06302138417959213,
+              "strategy_loss": 0.005881999619305134,
+              "commitment_loss": 1.2969604767931742e-06,
+              "deception_loss": -1.414961814880371,
+              "regularization_loss": 0.0018445493187755346
+            },
+            {
+              "total_loss": -0.06302718818187714,
+              "strategy_loss": 0.005886048078536987,
+              "commitment_loss": 1.6129829418787267e-06,
+              "deception_loss": -1.4151570796966553,
+              "regularization_loss": 0.0018444282468408346
+            },
+            {
+              "total_loss": -0.06303519010543823,
+              "strategy_loss": 0.005872473120689392,
+              "commitment_loss": 2.2543804334418382e-06,
+              "deception_loss": -1.4150471687316895,
+              "regularization_loss": 0.0018444386078044772
+            },
+            {
+              "total_loss": -0.06305299699306488,
+              "strategy_loss": 0.005999768152832985,
+              "commitment_loss": 1.4097153098191484e-06,
+              "deception_loss": -1.417943000793457,
+              "regularization_loss": 0.0018442324362695217
+            },
+            {
+              "total_loss": -0.06305386871099472,
+              "strategy_loss": 0.006048623472452164,
+              "commitment_loss": 1.726164100546157e-06,
+              "deception_loss": -1.4189343452453613,
+              "regularization_loss": 0.0018440441926941276
+            },
+            {
+              "total_loss": -0.06304506212472916,
+              "strategy_loss": 0.006099991966038942,
+              "commitment_loss": 1.324197910435032e-06,
+              "deception_loss": -1.419783353805542,
+              "regularization_loss": 0.001843982725404203
+            },
+            {
+              "total_loss": -0.06305349618196487,
+              "strategy_loss": 0.006162081845104694,
+              "commitment_loss": 2.1163800738577265e-06,
+              "deception_loss": -1.4211938381195068,
+              "regularization_loss": 0.0018439058912917972
+            },
+            {
+              "total_loss": -0.06306865811347961,
+              "strategy_loss": 0.006088068708777428,
+              "commitment_loss": 1.9118740510748466e-06,
+              "deception_loss": -1.4200172424316406,
+              "regularization_loss": 0.001843954436480999
+            },
+            {
+              "total_loss": -0.06306005269289017,
+              "strategy_loss": 0.006117514334619045,
+              "commitment_loss": 1.7041088540281635e-06,
+              "deception_loss": -1.4204329252243042,
+              "regularization_loss": 0.001843904610723257
+            },
+            {
+              "total_loss": -0.06306856125593185,
+              "strategy_loss": 0.006109484471380711,
+              "commitment_loss": 2.464116732880939e-06,
+              "deception_loss": -1.420440435409546,
+              "regularization_loss": 0.0018437359249219298
+            },
+            {
+              "total_loss": -0.06306789815425873,
+              "strategy_loss": 0.006055112928152084,
+              "commitment_loss": 2.104480472553405e-06,
+              "deception_loss": -1.4193439483642578,
+              "regularization_loss": 0.0018439723644405603
+            },
+            {
+              "total_loss": -0.06307300925254822,
+              "strategy_loss": 0.0060538649559021,
+              "commitment_loss": 2.2328345039568376e-06,
+              "deception_loss": -1.4194188117980957,
+              "regularization_loss": 0.00184384745080024
+            },
+            {
+              "total_loss": -0.0630669817328453,
+              "strategy_loss": 0.006106573157012463,
+              "commitment_loss": 2.2912963686394505e-06,
+              "deception_loss": -1.4203561544418335,
+              "regularization_loss": 0.0018440294079482555
+            },
+            {
+              "total_loss": -0.06308045983314514,
+              "strategy_loss": 0.005954875610768795,
+              "commitment_loss": 2.3278644221136346e-06,
+              "deception_loss": -1.4175955057144165,
+              "regularization_loss": 0.0018442119471728802
+            },
+            {
+              "total_loss": -0.06307347118854523,
+              "strategy_loss": 0.0059247734025120735,
+              "commitment_loss": 2.4190180738514755e-06,
+              "deception_loss": -1.4168546199798584,
+              "regularization_loss": 0.001844249782152474
+            },
+            {
+              "total_loss": -0.0630863681435585,
+              "strategy_loss": 0.005886669270694256,
+              "commitment_loss": 1.983173206099309e-06,
+              "deception_loss": -1.416351318359375,
+              "regularization_loss": 0.0018443333683535457
+            },
+            {
+              "total_loss": -0.06307978183031082,
+              "strategy_loss": 0.005863013677299023,
+              "commitment_loss": 1.915617986014695e-06,
+              "deception_loss": -1.4157487154006958,
+              "regularization_loss": 0.001844448153860867
+            },
+            {
+              "total_loss": -0.06308368593454361,
+              "strategy_loss": 0.00581984780728817,
+              "commitment_loss": 2.675629275472602e-06,
+              "deception_loss": -1.414964199066162,
+              "regularization_loss": 0.0018444058950990438
+            },
+            {
+              "total_loss": -0.06307356804609299,
+              "strategy_loss": 0.005874126683920622,
+              "commitment_loss": 2.565197519288631e-06,
+              "deception_loss": -1.415848970413208,
+              "regularization_loss": 0.0018445057794451714
+            }
+          ],
+          "commitment_rate_history": [],
+          "strategy_diversity_history": []
+        }
+      },
+      "phase_duration": 14908.050664186478,
+      "config": {
+        "total_hands": 5000,
+        "parallel_games": 16,
+        "batch_size": 256,
+        "learning_rate": 0.001,
+        "save_frequency": 100000,
+        "evaluation_frequency": 500000,
+        "checkpoint_dir": "research_results/session_20250919_001557/checkpoints",
+        "log_dir": "research_results/session_20250919_001557/training_logs",
+        "device": "cuda",
+        "num_strategies": 8,
+        "lambda_commitment": 0.3,
+        "lambda_deception": 0.1,
+        "gradient_clip_norm": 1.0,
+        "target_update_frequency": 1000,
+        "experience_buffer_size": 100000
+      }
+    }
+  },
+  "errors": [],
+  "validation": {
+    "environment_valid": true,
+    "baseline_agents_count": 5,
+    "device_info": {
+      "cuda_available": true,
+      "cuda_device_count": 1,
+      "selected_device": "cuda"
+    },
+    "validation_duration": 2.6583378314971924
+  },
+  "end_time": 1758255872.1493442,
+  "total_duration": 14914.32151556015
+}
