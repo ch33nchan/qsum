@@ -1,14 +1,14 @@
 {
     "device": "cuda",
     "gpu_training": {
-        "total_hands": 5000,
+        "total_hands": 10000000,
         "parallel_games": 16,
         "batch_size": 256,
         "num_strategies": 8,
         "lambda_commitment": 0.3,
         "lambda_deception": 0.1,
-        "save_frequency": 1000,
-        "evaluation_frequency": 5000,
+        "save_frequency": 100000,
+        "evaluation_frequency": 250000,
         "learning_rate": 0.001,
         "target_update_frequency": 1000
     },
