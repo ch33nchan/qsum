@@ -31,6 +31,9 @@ class ResearchDataAnalyzer:
         self.latex_dir = self.output_dir / "latex_tables"
         self.latex_dir.mkdir(exist_ok=True)
         
+        self.csv_dir = self.output_dir / "csv_data"
+        self.csv_dir.mkdir(exist_ok=True)
+        
         self.data_cache = {}
         
         plt.style.use('seaborn-v0_8')
@@ -126,6 +129,26 @@ class ResearchDataAnalyzer:
         
         logger.info(f"Loaded {len(results)} training log files")
         return results
+    
+    def export_to_csv(self):
+        """Exports all loaded data to CSV files."""
+        logger.info(f"Exporting data to CSV files in {self.csv_dir}")
+        if not self.data_cache:
+            self.load_experimental_data()
+
+        for name, data in self.data_cache.items():
+            if not data:
+                logger.info(f"No data for '{name}', skipping CSV export.")
+                continue
+            
+            try:
+                # We expect data to be a list of dictionaries
+                df = pd.json_normalize(data, sep='_')
+                file_path = self.csv_dir / f"{name}.csv"
+                df.to_csv(file_path, index=False)
+                logger.info(f"Successfully exported '{name}' to {file_path}")
+            except Exception as e:
+                logger.error(f"Could not export '{name}' to CSV: {e}")
     
     def generate_main_performance_chart(self) -> str:
         logger.info("Generating main performance chart")
@@ -697,6 +720,7 @@ Stack Size (BB) & mBB/100 & Win Rate & Hands/Second \\\\
         logger.info("Generating comprehensive research report")
         
         self.load_experimental_data()
+        self.export_to_csv()
         
         plot_paths = {
             'main_performance': self.generate_main_performance_chart(),
