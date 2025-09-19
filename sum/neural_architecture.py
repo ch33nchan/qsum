@@ -21,7 +21,7 @@ class GameEncoder(nn.Module):
         self.stack_encoder = nn.Linear(2, 32)
         self.pot_encoder = nn.Linear(1, 16)
         
-        # Total input: raw_features(8) + card_features(64) + position(16) + stacks(32) + pot(16) = 136
+        # Total input: raw_features(6) + card_features(64) + position(16) + stacks(32) + pot(16) = 134
         # Actual measured input dimension is 134
         total_input_dim = 134
         

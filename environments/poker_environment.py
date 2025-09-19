@@ -207,23 +207,95 @@ class PokerEnvironment:
         
         for valid_action in valid_actions:
             if valid_action['action'] == action_name:
-                return valid_action
+                # Normalize the amount to an integer
+                action_copy = valid_action.copy()
+                amount = action_copy.get('amount', 0)
+                
+                if isinstance(amount, dict):
+                    if 'min' in amount:
+                        action_copy['amount'] = amount['min']
+                    elif 'amount' in amount:
+                        action_copy['amount'] = amount['amount']
+                    else:
+                        action_copy['amount'] = 0
+                
+                action_copy['amount'] = int(action_copy['amount']) if action_copy['amount'] is not None else 0
+                return action_copy
         
-        return valid_actions[0]
+        # Fallback - normalize the first valid action
+        fallback_action = valid_actions[0].copy()
+        amount = fallback_action.get('amount', 0)
+        
+        if isinstance(amount, dict):
+            if 'min' in amount:
+                fallback_action['amount'] = amount['min']
+            elif 'amount' in amount:
+                fallback_action['amount'] = amount['amount']
+            else:
+                fallback_action['amount'] = 0
+        
+        fallback_action['amount'] = int(fallback_action['amount']) if fallback_action['amount'] is not None else 0
+        return fallback_action
     
     def run_tournament(self, 
                       player1: BasePokerPlayer, 
                       player2: BasePokerPlayer, 
                       num_games: int = 1000) -> Dict[str, Any]:
         
-        config = self.create_game_config([player1, player2])
+        logger.info(f"Starting tournament with {num_games} games between {getattr(player1, 'name', 'Player1')} and {getattr(player2, 'name', 'Player2')}")
+        
+        try:
+            config = self.create_game_config([player1, player2])
+            logger.info(f"Game config created successfully")
+        except Exception as e:
+            logger.error(f"Error creating game config: {e}")
+            import traceback
+            logger.error(f"Traceback: {traceback.format_exc()}")
+            return self._create_error_result()
         
         start_time = time.time()
         
         try:
-            game_result = start_poker(config, verbose=0)
+            logger.debug(f"Starting poker game with config for {num_games} games")
+            
+            # Validate players before starting
+            for i, player in enumerate([player1, player2]):
+                if not hasattr(player, 'declare_action'):
+                    logger.error(f"Player {i} missing declare_action method")
+                    return self._create_error_result()
+                if not hasattr(player, 'name'):
+                    logger.warning(f"Player {i} missing name attribute")
+            
+            # Start the poker game directly
+            try:
+                logger.info(f"About to call start_poker for {num_games} games...")
+                game_result = start_poker(config, verbose=0)
+                logger.info(f"start_poker completed successfully for {num_games} games")
+            except Exception as e:
+                logger.error(f"Exception in start_poker: {e}")
+                raise e
+            
+            # Validate game result
+            if not game_result or 'players' not in game_result:
+                logger.error(f"Invalid game result structure: {game_result}")
+                return self._create_error_result()
+            
+            logger.debug(f"Poker game completed successfully with {len(game_result.get('players', []))} players")
+            
         except Exception as e:
             logger.error(f"Error running tournament: {e}")
+            import traceback
+            logger.error(f"Traceback: {traceback.format_exc()}")
+            
+            # Check for specific pypokerengine errors
+            error_msg = str(e).lower()
+            if 'timeout' in error_msg:
+                logger.error("Tournament timed out - possible infinite loop in game logic")
+            elif 'memory' in error_msg:
+                logger.error("Memory error during tournament - possible memory leak")
+            elif 'stack' in error_msg:
+                logger.error("Stack-related error - possible recursion issue")
+            
             return self._create_error_result()
         
         end_time = time.time()

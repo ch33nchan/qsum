@@ -23,7 +23,8 @@ class SUMAgent(BasePokerPlayer):
                  device: str = "cuda" if torch.cuda.is_available() else "cpu",
                  learning_rate: float = 0.001,
                  lambda_commitment: float = 0.3,
-                 lambda_deception: float = 0.1):
+                 lambda_deception: float = 0.1,
+                 is_copy: bool = False):
         
         super().__init__()
         self.name = name
@@ -34,23 +35,23 @@ class SUMAgent(BasePokerPlayer):
             num_strategies=num_strategies
         ).to(self.device)
         
-        self.loss_manager = MultiObjectiveLossManager(
-            lambda_commitment=lambda_commitment,
-            lambda_deception=lambda_deception,
-            use_adaptive_weights=True
-        )
-        
-        self.optimizer = torch.optim.Adam(
-            self.neural_architecture.parameters(),
-            lr=learning_rate,
-            weight_decay=1e-5
-        )
-        
         self.poker_env = PokerEnvironment()
-        
         self.training_mode = True
         self.experience_buffer = deque(maxlen=10000)
-        self.performance_history = deque(maxlen=100)
+
+        if not is_copy:
+            self.loss_manager = MultiObjectiveLossManager(
+                lambda_commitment=lambda_commitment,
+                lambda_deception=lambda_deception,
+                use_adaptive_weights=True
+            )
+            
+            self.optimizer = torch.optim.Adam(
+                self.neural_architecture.parameters(),
+                lr=learning_rate,
+                weight_decay=1e-5
+            )
+            self.performance_history = deque(maxlen=100)
         
         self.game_statistics = {
             'total_hands': 0,
@@ -97,7 +98,16 @@ class SUMAgent(BasePokerPlayer):
             
             self._update_statistics(model_outputs, chosen_action)
             
-            return chosen_action['action'], chosen_action['amount']
+            # Return action string and amount integer as expected by PyPokerEngine
+            action_name = chosen_action['action']
+            action_amount = chosen_action.get('amount', 0)
+            
+            # Ensure amount is an integer (should already be normalized by decode_action)
+            action_amount = int(action_amount) if action_amount is not None else 0
+            
+            logger.debug(f"Agent {self.name} declaring action: {action_name}, amount: {action_amount} (type: {type(action_amount)})")
+            
+            return action_name, action_amount
             
         except Exception as e:
             logger.error(f"Error in declare_action: {e}")
@@ -162,16 +172,19 @@ class SUMAgent(BasePokerPlayer):
             if hand_strength < 0.3:
                 self.game_statistics['successful_bluffs'] += 1
     
-    def train_step(self, batch_size: int = 32) -> Dict[str, float]:
-        if len(self.experience_buffer) < batch_size:
+    def train_step(self, batch: List[Dict]) -> Dict[str, float]:
+        if not batch:
             return {'error': 'Insufficient experience data'}
         
         try:
-            batch = self._sample_batch(batch_size)
-            
             predictions = self._forward_batch(batch)
             targets = self._create_targets(batch)
             game_context = self._create_game_context(batch)
+            
+            # Debug tensor shapes
+            logger.debug(f"Predictions shapes: strategies={predictions['strategies'].shape}, weights={predictions['weights'].shape}")
+            logger.debug(f"Targets shapes: actions={targets['actions'].shape}, commitment={targets['commitment'].shape}")
+            logger.debug(f"Game context shapes: hand_strength={game_context['hand_strength'].shape}")
             
             performance_metrics = self._calculate_performance_metrics()
             
@@ -195,7 +208,9 @@ class SUMAgent(BasePokerPlayer):
             }
             
         except Exception as e:
+            import traceback
             logger.error(f"Error in train_step: {e}")
+            logger.error(f"Traceback: {traceback.format_exc()}")
             return {'error': str(e)}
     
     def _sample_batch(self, batch_size: int) -> List[Dict]:
@@ -206,15 +221,57 @@ class SUMAgent(BasePokerPlayer):
         batch_game_states = {}
         batch_action_histories = {}
         
+        # Process game states with consistent tensor shapes
         for key in batch[0]['game_state'].keys():
-            batch_game_states[key] = torch.stack([
-                exp['game_state'][key].to(self.device) for exp in batch
-            ])
+            tensors = []
+            for exp in batch:
+                tensor = exp['game_state'][key].to(self.device)
+                # Ensure consistent shape - flatten if needed
+                if tensor.dim() > 1:
+                    tensor = tensor.flatten()
+                elif tensor.dim() == 0:
+                    tensor = tensor.unsqueeze(0)
+                tensors.append(tensor)
+            
+            # Stack tensors with same shape
+            if len(set(t.shape for t in tensors)) == 1:
+                batch_game_states[key] = torch.stack(tensors)
+            else:
+                # Pad to same size if needed
+                max_size = max(t.shape[0] for t in tensors)
+                padded_tensors = []
+                for t in tensors:
+                    if t.shape[0] < max_size:
+                        padding = torch.zeros(max_size - t.shape[0], device=self.device)
+                        t = torch.cat([t, padding])
+                    padded_tensors.append(t)
+                batch_game_states[key] = torch.stack(padded_tensors)
         
+        # Process action histories with consistent tensor shapes
         for key in batch[0]['action_history'].keys():
-            batch_action_histories[key] = torch.stack([
-                exp['action_history'][key].to(self.device) for exp in batch
-            ])
+            tensors = []
+            for exp in batch:
+                tensor = exp['action_history'][key].to(self.device)
+                # Ensure consistent shape - flatten if needed
+                if tensor.dim() > 1:
+                    tensor = tensor.flatten()
+                elif tensor.dim() == 0:
+                    tensor = tensor.unsqueeze(0)
+                tensors.append(tensor)
+            
+            # Stack tensors with same shape
+            if len(set(t.shape for t in tensors)) == 1:
+                batch_action_histories[key] = torch.stack(tensors)
+            else:
+                # Pad to same size if needed
+                max_size = max(t.shape[0] for t in tensors)
+                padded_tensors = []
+                for t in tensors:
+                    if t.shape[0] < max_size:
+                        padding = torch.zeros(max_size - t.shape[0], device=self.device)
+                        t = torch.cat([t, padding])
+                    padded_tensors.append(t)
+                batch_action_histories[key] = torch.stack(padded_tensors)
         
         return self.neural_architecture(batch_game_states, batch_action_histories)
     
@@ -258,9 +315,35 @@ class SUMAgent(BasePokerPlayer):
         stack_sizes = torch.zeros(batch_size, device=self.device)
         
         for i, exp in enumerate(batch):
-            hand_strengths[i] = exp['game_state'].get('hand_strength', torch.tensor(0.5))
-            pot_sizes[i] = exp['game_state'].get('pot_size', torch.tensor(10.0))
-            stack_sizes[i] = exp['game_state'].get('stack_sizes', torch.tensor(200.0))
+            # Extract hand_strength with proper tensor handling
+            hand_strength = exp['game_state'].get('hand_strength', torch.tensor(0.5))
+            if torch.is_tensor(hand_strength):
+                if hand_strength.dim() > 0:
+                    hand_strengths[i] = hand_strength.flatten()[0]
+                else:
+                    hand_strengths[i] = hand_strength
+            else:
+                hand_strengths[i] = float(hand_strength)
+            
+            # Extract pot_size with proper tensor handling
+            pot_size = exp['game_state'].get('pot_size', torch.tensor(10.0))
+            if torch.is_tensor(pot_size):
+                if pot_size.dim() > 0:
+                    pot_sizes[i] = pot_size.flatten()[0]
+                else:
+                    pot_sizes[i] = pot_size
+            else:
+                pot_sizes[i] = float(pot_size)
+            
+            # Extract stack_sizes with proper tensor handling
+            stack_size = exp['game_state'].get('stack_sizes', torch.tensor(200.0))
+            if torch.is_tensor(stack_size):
+                if stack_size.dim() > 0:
+                    stack_sizes[i] = stack_size.flatten()[0]
+                else:
+                    stack_sizes[i] = stack_size
+            else:
+                stack_sizes[i] = float(stack_size)
         
         return {
             'hand_strength': hand_strengths,

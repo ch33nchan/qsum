@@ -1,0 +1,127 @@
+{
+  "session_id": "20250919_004702",
+  "config": {
+    "device": "mps",
+    "gpu_training": {
+      "total_hands": 50,
+      "parallel_games": 2,
+      "batch_size": 256,
+      "num_strategies": 8,
+      "lambda_commitment": 0.3,
+      "lambda_deception": 0.1,
+      "save_frequency": 100,
+      "evaluation_frequency": 500,
+      "learning_rate": 0.001,
+      "target_update_frequency": 1000
+    },
+    "cpu_experiments": {
+      "training_hands": 1000000,
+      "evaluation_hands": 100000,
+      "num_trials": 3
+    },
+    "benchmark_gauntlet": {
+      "hands_per_match": 1000000,
+      "num_trials": 3,
+      "generate_plots": true
+    },
+    "phases_to_run": [
+      "gpu_training"
+    ],
+    "results_dir": "research_results",
+    "save_checkpoints": true,
+    "validate_environment": true
+  },
+  "start_time": 1758239222.9253912,
+  "phases_completed": [
+    "gpu_training"
+  ],
+  "phase_results": {
+    "gpu_training": {
+      "training_results": {
+        "total_hands": 50,
+        "total_training_steps": 5,
+        "total_duration": 210.4657962322235,
+        "final_checkpoint": "research_results/session_20250919_004702/checkpoints/final_model_1758239434.pt",
+        "training_statistics": {
+          "total_hands_played": 50,
+          "total_training_steps": 5,
+          "total_games": 10,
+          "successful_games": 10,
+          "failed_games": 0,
+          "average_game_duration": 0.0,
+          "win_rate_history": [],
+          "loss_history": [
+            {
+              "total_loss": 0.19598793983459473,
+              "strategy_loss": 0.0181405209004879,
+              "commitment_loss": 0.9631249308586121,
+              "deception_loss": -1.3087337017059326,
+              "regularization_loss": 0.019783301278948784
+            },
+            {
+              "total_loss": -0.03268656134605408,
+              "strategy_loss": 0.013117487542331219,
+              "commitment_loss": 0.1060757040977478,
+              "deception_loss": -0.9640233516693115,
+              "regularization_loss": 0.0187755785882473
+            },
+            {
+              "total_loss": -0.07616102695465088,
+              "strategy_loss": 0.02818945422768593,
+              "commitment_loss": 0.006705756299197674,
+              "deception_loss": -1.2166434526443481,
+              "regularization_loss": 0.015302139334380627
+            },
+            {
+              "total_loss": -0.051020547747612,
+              "strategy_loss": 0.07356131076812744,
+              "commitment_loss": 0.0005642563919536769,
+              "deception_loss": -1.3328685760498047,
+              "regularization_loss": 0.008535726927220821
+            },
+            {
+              "total_loss": 0.012269298546016216,
+              "strategy_loss": 0.06577857583761215,
+              "commitment_loss": 0.00011576719407457858,
+              "deception_loss": -0.6409761905670166,
+              "regularization_loss": 0.010553616099059582
+            }
+          ],
+          "commitment_rate_history": [],
+          "strategy_diversity_history": []
+        }
+      },
+      "phase_duration": 210.6475248336792,
+      "config": {
+        "total_hands": 50,
+        "parallel_games": 2,
+        "batch_size": 256,
+        "learning_rate": 0.001,
+        "save_frequency": 100000,
+        "evaluation_frequency": 500000,
+        "checkpoint_dir": "research_results/session_20250919_004702/checkpoints",
+        "log_dir": "research_results/session_20250919_004702/training_logs",
+        "device": "mps",
+        "num_strategies": 8,
+        "lambda_commitment": 0.3,
+        "lambda_deception": 0.1,
+        "gradient_clip_norm": 1.0,
+        "target_update_frequency": 1000,
+        "experience_buffer_size": 100000
+      }
+    }
+  },
+  "errors": [],
+  "validation": {
+    "environment_valid": true,
+    "baseline_agents_count": 5,
+    "device_info": {
+      "cuda_available": false,
+      "cuda_device_count": 0,
+      "selected_device": "mps"
+    },
+    "validation_duration": 0.8223779201507568
+  },
+  "end_time": 1758239434.505997,
+  "total_duration": 211.58060574531555
+}

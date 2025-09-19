@@ -14,7 +14,7 @@ plotly>=5.14.0
 bokeh>=3.2.0
 
 # Poker Engine and Game Theory
-PyPokerEngine>=1.0.5
+PyPokerEngine==1.0.1
 
 # Progress and Logging
 tqdm>=4.65.0
@@ -57,9 +57,9 @@ opencv-python>=4.8.0
 # Network and Graph Analysis
 networkx>=3.1
 
-# GPU Acceleration (Optional)
-cupy-cuda12x>=12.2.0; sys_platform != "darwin"
-nvidia-ml-py>=12.535.0; sys_platform != "darwin"
+# GPU Acceleration
+cupy-cuda12x>=12.2.0
+nvidia-ml-py>=12.535.0
 
 # Experiment Tracking (Optional)
 wandb>=0.15.0

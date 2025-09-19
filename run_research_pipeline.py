@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Dict, Any, Optional
 import torch
 from datetime import datetime
+from tqdm import tqdm
 
 from training.self_play_trainer import SelfPlayTrainer, TrainingConfig
 from evaluation.benchmark_system import BenchmarkGauntlet, BenchmarkConfig
@@ -47,6 +48,12 @@ class ResearchPipelineManager:
             'errors': []
         }
         
+        # Progress tracking
+        self.progress_bar = None
+        self.current_phase = ""
+        self.total_phases = 0
+        self.completed_phases = 0
+        
         logger.info(f"ResearchPipelineManager initialized. Session: {self.experiment_timestamp}")
         logger.info(f"Results will be saved to: {self.session_dir}")
     
@@ -54,17 +61,20 @@ class ResearchPipelineManager:
         default_config = {
             'device': 'cuda' if torch.cuda.is_available() else 'cpu',
             'gpu_training': {
-                'total_hands': 10_000_000,
-                'parallel_games': 64,
-                'batch_size': 256,
-                'num_strategies': 8,
+                'total_hands': 100_000,  # Reduced for faster experimentation
+                'parallel_games': 8,  # Increased for better throughput
+                'batch_size': 128,  # Reduced for faster processing
+                'num_strategies': 4,  # Reduced for faster neural network
                 'lambda_commitment': 0.3,
                 'lambda_deception': 0.1
             },
             'cpu_experiments': {
-                'training_hands': 1_000_000,
-                'evaluation_hands': 100_000,
-                'num_trials': 3
+                'total_hands': 100,
+                'parallel_games': 8,
+                'batch_size': 128,
+                'num_strategies': 4,
+                'lambda_commitment': 0.3,
+                'lambda_deception': 0.1
             },
             'benchmark_gauntlet': {
                 'hands_per_match': 1_000_000,
@@ -93,26 +103,55 @@ class ResearchPipelineManager:
         logger.info("Starting complete SUM poker research pipeline")
         
         try:
-            if self.config.get('validate_environment', True):
-                self._validate_research_environment()
-            
+            # Initialize progress tracking
             phases = self.config.get('phases_to_run', [])
+            self.total_phases = len(phases) + 2  # +2 for validation and finalization
+            
+            # Create main progress bar
+            self.progress_bar = tqdm(
+                total=self.total_phases,
+                desc="Research Pipeline Progress",
+                unit="phase",
+                bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}] {desc}",
+                position=0,
+                leave=True
+            )
+            
+            if self.config.get('validate_environment', True):
+                self._update_progress("Environment Validation")
+                self._validate_research_environment()
+                self._complete_phase("validation")
             
             if 'gpu_training' in phases:
+                self._update_progress("GPU Training Phase")
                 self._run_gpu_training_phase()
+                self._complete_phase("gpu_training")
             
             if 'cpu_experiments' in phases:
-                self._run_cpu_experiments_phase()
+                self._update_progress("CPU Experiments Phase")
+                self._run_cpu_training_phase()
+                self._complete_phase("cpu_experiments")
             
             if 'benchmark_gauntlet' in phases:
+                self._update_progress("Benchmark Gauntlet Phase")
                 self._run_benchmark_gauntlet_phase()
+                self._complete_phase("benchmark_gauntlet")
             
             if 'analysis' in phases:
+                self._update_progress("Analysis Phase")
                 self._run_analysis_phase()
+                self._complete_phase("analysis")
             
+            self._update_progress("Finalizing Pipeline")
             self._finalize_pipeline()
+            self._complete_phase("finalization")
+            
+            if self.progress_bar:
+                self.progress_bar.close()
             
         except Exception as e:
+            if self.progress_bar:
+                self.progress_bar.close()
             logger.error(f"Pipeline execution failed: {e}")
             self.pipeline_results['errors'].append({
                 'phase': 'pipeline_execution',
@@ -121,6 +160,22 @@ class ResearchPipelineManager:
             })
         
         return self.pipeline_results
+    
+    def _update_progress(self, phase_name: str):
+        """Update the progress bar with current phase information"""
+        self.current_phase = phase_name
+        if self.progress_bar:
+            self.progress_bar.set_description(f"Research Pipeline: {phase_name}")
+    
+    def _complete_phase(self, phase_name: str):
+        """Mark a phase as completed and update progress"""
+        self.completed_phases += 1
+        if self.progress_bar:
+            self.progress_bar.update(1)
+            self.progress_bar.set_postfix({
+                'Current': phase_name,
+                'Completed': f"{self.completed_phases}/{self.total_phases}"
+            })
     
     def _validate_research_environment(self):
         logger.info("Validating research environment")
@@ -165,6 +220,7 @@ class ResearchPipelineManager:
     
     def _run_gpu_training_phase(self):
         logger.info("Starting GPU training phase")
+        self._update_progress("gpu_training")
         
         phase_start = time.time()
         
@@ -196,6 +252,7 @@ class ResearchPipelineManager:
             }
             
             self.pipeline_results['phases_completed'].append('gpu_training')
+            self._complete_phase("gpu_training")
             
             logger.info(f"GPU training phase completed in {phase_duration:.2f}s")
             logger.info(f"Total hands trained: {training_results.get('total_hands', 0):,}")
@@ -210,8 +267,57 @@ class ResearchPipelineManager:
     
 
     
+    
+    def _run_cpu_training_phase(self):
+        logger.info("Starting CPU training phase")
+        self._update_progress("cpu_experiments")
+        
+        phase_start = time.time()
+        
+        try:
+            cpu_config = self.config['cpu_experiments']
+            
+            training_config = TrainingConfig(
+                total_hands=cpu_config['total_hands'],
+                parallel_games=cpu_config['parallel_games'],
+                batch_size=cpu_config['batch_size'],
+                device='cpu',
+                num_strategies=cpu_config['num_strategies'],
+                lambda_commitment=cpu_config['lambda_commitment'],
+                lambda_deception=cpu_config['lambda_deception'],
+                checkpoint_dir=str(self.session_dir / 'checkpoints'),
+                log_dir=str(self.session_dir / 'training_logs')
+            )
+            
+            trainer = SelfPlayTrainer(training_config)
+            
+            training_results = trainer.train()
+            
+            phase_duration = time.time() - phase_start
+            
+            self.pipeline_results['phase_results']['cpu_experiments'] = {
+                'training_results': training_results,
+                'phase_duration': phase_duration,
+                'config': training_config.__dict__
+            }
+            
+            self.pipeline_results['phases_completed'].append('cpu_experiments')
+            self._complete_phase("cpu_experiments")
+            
+            logger.info(f"CPU training phase completed in {phase_duration:.2f}s")
+            logger.info(f"Total hands trained: {training_results.get('total_hands', 0):,}")
+            
+        except Exception as e:
+            logger.error(f"CPU training phase failed: {e}")
+            self.pipeline_results['errors'].append({
+                'phase': 'cpu_experiments',
+                'error': str(e),
+                'timestamp': time.time()
+            })
+
     def _run_benchmark_gauntlet_phase(self):
         logger.info("Starting benchmark gauntlet phase")
+        self._update_progress("benchmark_gauntlet")
         
         phase_start = time.time()
         
@@ -241,6 +347,7 @@ class ResearchPipelineManager:
             }
             
             self.pipeline_results['phases_completed'].append('benchmark_gauntlet')
+            self._complete_phase("benchmark_gauntlet")
             
             logger.info(f"Benchmark gauntlet phase completed in {phase_duration:.2f}s")
             

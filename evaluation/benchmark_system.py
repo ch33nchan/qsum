@@ -11,6 +11,8 @@ import statistics
 from scipy import stats
 import matplotlib.pyplot as plt
 import seaborn as sns
+from tqdm import tqdm
+import datetime
 
 from agents.sum_agent import SUMAgent
 from agents.baseline_agents import BaselineAgentFactory
@@ -149,11 +151,25 @@ class BenchmarkMatch:
         
         trial_results = []
         
-        for trial in range(self.config.num_trials):
-            logger.info(f"Running trial {trial + 1}/{self.config.num_trials}")
-            
-            trial_result = self._run_single_trial(trial)
-            trial_results.append(trial_result)
+        # Progress bar for trials
+        trial_desc = f"{self.sum_agent.name} vs {self.baseline_agent.name}"
+        with tqdm(range(self.config.num_trials), desc=trial_desc, unit="trial") as pbar:
+            for trial in pbar:
+                trial_start = time.time()
+                trial_result = self._run_single_trial(trial)
+                trial_results.append(trial_result)
+                
+                # Update progress bar with ETA
+                elapsed = time.time() - match_start_time
+                avg_time_per_trial = elapsed / (trial + 1)
+                remaining_trials = self.config.num_trials - (trial + 1)
+                eta_seconds = avg_time_per_trial * remaining_trials
+                eta_str = str(datetime.timedelta(seconds=int(eta_seconds)))
+                
+                pbar.set_postfix({
+                    'ETA': eta_str,
+                    'Avg/trial': f"{avg_time_per_trial:.1f}s"
+                })
         
         match_end_time = time.time()
         
@@ -176,11 +192,15 @@ class BenchmarkMatch:
         
         self.sum_agent.set_training_mode(False)
         
+        logger.info(f"Starting trial {trial_id} with {self.config.hands_per_match} hands")
+        
         tournament_result = self.poker_env.run_tournament(
             self.sum_agent,
             self.baseline_agent,
             num_games=self.config.hands_per_match
         )
+        
+        logger.info(f"Trial {trial_id} raw tournament result: {tournament_result}")
         
         trial_end = time.time()
         
@@ -202,7 +222,13 @@ class BenchmarkMatch:
         return trial_summary
     
     def _extract_performance_metrics(self, tournament_result: Dict) -> Dict[str, Any]:
+        # Add detailed logging for debugging
+        logger.info(f"Tournament result keys: {list(tournament_result.keys())}")
+        logger.info(f"Tournament success: {tournament_result.get('success', False)}")
+        logger.info(f"Tournament total_hands: {tournament_result.get('total_hands', 'NOT_FOUND')}")
+        
         if not tournament_result.get('success', False):
+            logger.warning("Tournament was not successful, returning zero metrics")
             return {
                 'sum_winnings': 0,
                 'baseline_winnings': 0,
@@ -213,6 +239,7 @@ class BenchmarkMatch:
             }
         
         player_results = tournament_result.get('player_results', {})
+        logger.info(f"Player results: {player_results}")
         
         sum_result = player_results.get(self.sum_agent.name, {})
         baseline_result = None
@@ -229,10 +256,25 @@ class BenchmarkMatch:
         baseline_winnings = baseline_result.get('winnings', 0)
         
         total_hands = tournament_result.get('total_hands', self.config.hands_per_match)
-        big_blind = 2
         
-        sum_mbb = (sum_winnings / (total_hands / 100)) / big_blind * 1000
-        baseline_mbb = (baseline_winnings / (total_hands / 100)) / big_blind * 1000
+        # Fix division by zero error
+        if total_hands == 0:
+            logger.error(f"Total hands is 0! Using fallback value: {self.config.hands_per_match}")
+            total_hands = self.config.hands_per_match
+        
+        big_blind = 2
+        hands_per_100 = total_hands / 100
+        
+        # Prevent division by zero
+        if hands_per_100 == 0:
+            logger.error("Hands per 100 is 0, cannot calculate mBB/100")
+            sum_mbb = 0.0
+            baseline_mbb = 0.0
+        else:
+            sum_mbb = (sum_winnings / hands_per_100) / big_blind * 1000
+            baseline_mbb = (baseline_winnings / hands_per_100) / big_blind * 1000
+        
+        logger.info(f"Calculated metrics - Sum mBB/100: {sum_mbb}, Baseline mBB/100: {baseline_mbb}")
         
         return {
             'sum_winnings': sum_winnings,

@@ -1,0 +1,29 @@
+{
+    "device": "cuda",
+    "gpu_training": {
+        "total_hands": 5000,
+        "parallel_games": 16,
+        "batch_size": 256,
+        "num_strategies": 8,
+        "lambda_commitment": 0.3,
+        "lambda_deception": 0.1,
+        "save_frequency": 1000,
+        "evaluation_frequency": 5000,
+        "learning_rate": 0.001,
+        "target_update_frequency": 1000
+    },
+    "cpu_experiments": {
+        "training_hands": 1000000,
+        "evaluation_hands": 100000,
+        "num_trials": 3
+    },
+    "benchmark_gauntlet": {
+        "hands_per_match": 1000000,
+        "num_trials": 3,
+        "generate_plots": true
+    },
+    "phases_to_run": ["gpu_training"],
+    "results_dir": "research_results",
+    "save_checkpoints": true,
+    "validate_environment": true
+}

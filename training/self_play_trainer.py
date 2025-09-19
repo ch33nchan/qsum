@@ -11,11 +11,13 @@ from collections import deque
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 import threading
 from dataclasses import dataclass
+from tqdm import tqdm
 
 from agents.sum_agent import SUMAgent
 from environments.poker_environment import PokerEnvironment
 from sum.neural_architecture import SUMNeuralArchitecture
 from sum.loss_functions import MultiObjectiveLossManager
+from pypokerengine.players import BasePokerPlayer
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -42,9 +44,6 @@ class ParallelGameManager:
     def __init__(self, config: TrainingConfig):
         self.config = config
         self.game_environments = []
-        self.active_games = {}
-        self.completed_games = deque(maxlen=10000)
-        
         for i in range(config.parallel_games):
             env = PokerEnvironment(
                 initial_stack=200,
@@ -54,50 +53,62 @@ class ParallelGameManager:
             self.game_environments.append(env)
         
         logger.info(f"ParallelGameManager initialized with {config.parallel_games} parallel games")
-    
-    def run_parallel_games(self, agent1: SUMAgent, agent2: SUMAgent, hands_per_game: int = 100) -> List[Dict]:
-        results = []
-        
-        with ThreadPoolExecutor(max_workers=self.config.parallel_games) as executor:
-            futures = []
-            
-            for i in range(self.config.parallel_games):
-                env = self.game_environments[i]
-                
-                future = executor.submit(
-                    self._run_single_game,
-                    env, agent1, agent2, hands_per_game, i
+
+    def run_parallel_games(
+        self, 
+        main_agent_copies: List[SUMAgent], 
+        opponent_agent_copies: List[SUMAgent], 
+        hands_per_game: int
+    ) -> List[Dict]:
+        num_games = self.config.parallel_games
+        game_results = []
+
+        logger.info(f"Running {num_games} games sequentially (hands_per_game={hands_per_game})")
+
+        for i in range(num_games):
+            env = self.game_environments[i]
+            main_agent_copy = main_agent_copies[i]
+            opponent_agent_copy = opponent_agent_copies[i]
+
+            try:
+                result = self._run_single_game(
+                    env, main_agent_copy, opponent_agent_copy, hands_per_game, i
                 )
-                futures.append(future)
+                game_results.append(result)
+            except Exception as e:
+                logger.error(f"Game execution failed in game {i}: {e}", exc_info=True)
+                game_results.append(self._create_error_result(i))
             
-            for future in futures:
-                try:
-                    result = future.result(timeout=300)
-                    results.append(result)
-                except Exception as e:
-                    logger.error(f"Game execution failed: {e}")
-                    results.append(self._create_error_result())
-        
-        return results
-    
+        return game_results
+
     def _run_single_game(self, env: PokerEnvironment, agent1: SUMAgent, agent2: SUMAgent, hands_per_game: int, game_id: int) -> Dict:
         try:
             start_time = time.time()
+            actual_hands = min(hands_per_game, 5)
             
-            result = env.run_tournament(agent1, agent2, num_games=hands_per_game)
-            
+            logger.debug(f"Starting game {game_id} with {actual_hands} hands")
+            result = env.run_tournament(agent1, agent2, num_games=actual_hands)
             end_time = time.time()
+            execution_time = end_time - start_time
+            
+            if not result.get('success', False):
+                logger.warning(f"Game {game_id} reported failure: {result.get('error', 'Unknown error')}")
+                return self._create_error_result(game_id)
             
             result.update({
                 'game_id': game_id,
-                'execution_time': end_time - start_time,
-                'hands_per_game': hands_per_game
+                'execution_time': execution_time,
+                'hands_per_game': actual_hands,
+                'original_hands_requested': hands_per_game
             })
             
+            logger.debug(f"Game {game_id} completed successfully in {execution_time:.2f}s with {actual_hands} hands")
             return result
             
         except Exception as e:
             logger.error(f"Error in game {game_id}: {e}")
+            import traceback
+            logger.error(f"Game {game_id} traceback: {traceback.format_exc()}")
             return self._create_error_result(game_id)
     
     def _create_error_result(self, game_id: int = -1) -> Dict:
@@ -122,6 +133,10 @@ class ExperienceReplayBuffer:
     def add_experience(self, experience: Dict, priority: float = 1.0):
         self.buffer.append(experience)
         self.priorities.append(priority)
+
+    def add_batch(self, experiences: List[Dict]):
+        for experience in experiences:
+            self.add_experience(experience)
     
     def sample_batch(self, batch_size: int, prioritized: bool = True) -> List[Dict]:
         if len(self.buffer) < batch_size:
@@ -191,6 +206,8 @@ class SelfPlayTrainer:
             'total_hands_played': 0,
             'total_training_steps': 0,
             'total_games': 0,
+            'successful_games': 0,
+            'failed_games': 0,
             'average_game_duration': 0.0,
             'win_rate_history': [],
             'loss_history': [],
@@ -213,34 +230,56 @@ class SelfPlayTrainer:
         hands_played = 0
         training_step = 0
         
-        while hands_played < self.config.total_hands:
-            epoch_start = time.time()
-            
-            game_results = self._run_training_epoch()
-            
-            hands_this_epoch = self._process_game_results(game_results)
-            hands_played += hands_this_epoch
-            
-            if len(self.experience_buffer) >= self.config.batch_size:
-                training_losses = self._training_step()
-                training_step += 1
+        progress_bar = tqdm(
+            total=self.config.total_hands,
+            desc="Training Progress",
+            unit="hands",
+            unit_scale=True,
+            dynamic_ncols=True,
+            bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}] {postfix}"
+        )
+        
+        try:
+            while hands_played < self.config.total_hands:
+                epoch_start = time.time()
                 
-                self.performance_tracker['recent_losses'].append(training_losses)
-            
-            if training_step % self.config.target_update_frequency == 0 and training_step > 0:
-                self._update_target_network()
-            
-            if hands_played % self.config.save_frequency == 0 and hands_played > 0:
-                self._save_checkpoint(hands_played, training_step)
-            
-            if hands_played % self.config.evaluation_frequency == 0 and hands_played > 0:
-                self._evaluate_progress(hands_played)
-            
-            epoch_duration = time.time() - epoch_start
-            hands_per_second = hands_this_epoch / epoch_duration if epoch_duration > 0 else 0
-            self.performance_tracker['hands_per_second'].append(hands_per_second)
-            
-            self._log_progress(hands_played, training_step, hands_per_second)
+                game_results, agent_copies = self._run_training_epoch()
+                
+                hands_this_epoch = self._process_game_results(game_results, agent_copies)
+                hands_played += hands_this_epoch
+                
+                progress_bar.update(hands_this_epoch)
+                
+                if len(self.experience_buffer) >= self.config.batch_size:
+                    training_losses = self._training_step()
+                    training_step += 1
+                    
+                    self.performance_tracker['recent_losses'].append(training_losses)
+                    
+                    avg_loss = sum(training_losses.values()) / len(training_losses)
+                    progress_bar.set_postfix({
+                        'Loss': f'{avg_loss:.4f}',
+                        'Step': training_step,
+                        'Buffer': len(self.experience_buffer)
+                    })
+                
+                if training_step % self.config.target_update_frequency == 0 and training_step > 0:
+                    self._update_target_network()
+                
+                if hands_played % self.config.save_frequency == 0 and hands_played > 0:
+                    self._save_checkpoint(hands_played, training_step)
+                
+                if hands_played % self.config.evaluation_frequency == 0 and hands_played > 0:
+                    self._evaluate_progress(hands_played)
+                
+                epoch_duration = time.time() - epoch_start
+                hands_per_second = hands_this_epoch / epoch_duration if epoch_duration > 0 else 0
+                self.performance_tracker['hands_per_second'].append(hands_per_second)
+                
+                self._log_progress(hands_played, training_step, hands_per_second)
+        
+        finally:
+            progress_bar.close()
         
         total_duration = time.time() - start_time
         
@@ -256,18 +295,37 @@ class SelfPlayTrainer:
             'training_statistics': self.training_statistics
         }
     
-    def _run_training_epoch(self) -> List[Dict]:
-        hands_per_game = min(100, max(10, self.config.total_hands // (self.config.parallel_games * 100)))
+    def _run_training_epoch(self) -> Tuple[List[Dict], List[SUMAgent]]:
+        hands_per_game = min(20, max(5, self.config.total_hands // (self.config.parallel_games * 50)))
         
-        opponent_agent = self._create_opponent_agent()
+        main_agent_copies = [
+            self._create_lightweight_agent_copy(self.main_agent, f"{self.main_agent.name}_game_{i}")
+            for i in range(self.config.parallel_games)
+        ]
+        
+        opponent_agent_copies = [
+            self._create_lightweight_agent_copy(self._create_opponent_agent(), f"SUM_Opponent_game_{i}")
+            for i in range(self.config.parallel_games)
+        ]
         
         game_results = self.game_manager.run_parallel_games(
-            self.main_agent,
-            opponent_agent,
+            main_agent_copies,
+            opponent_agent_copies,
             hands_per_game=hands_per_game
         )
         
-        return game_results
+        return game_results, main_agent_copies
+
+    def _create_lightweight_agent_copy(self, original_agent: SUMAgent, new_name: str) -> SUMAgent:
+        copy_agent = SUMAgent(
+            name=new_name,
+            num_strategies=original_agent.num_strategies,
+            device=original_agent.device,
+            is_copy=True
+        )
+        copy_agent.neural_architecture.load_state_dict(original_agent.neural_architecture.state_dict())
+        copy_agent.set_training_mode(True)  # Set to training mode to collect experience
+        return copy_agent
     
     def _create_opponent_agent(self) -> SUMAgent:
         opponent = SUMAgent(
@@ -289,44 +347,80 @@ class SelfPlayTrainer:
         
         return opponent
     
-    def _process_game_results(self, game_results: List[Dict]) -> int:
-        total_hands = 0
+    def _process_game_results(self, game_results: List[Dict], agent_copies: List[SUMAgent]) -> int:
+        logger.info(f"Processing {len(game_results)} game results...")
+        hands_this_epoch = 0
         successful_games = 0
-        total_win_rate = 0.0
         
         for result in game_results:
             if result.get('success', False):
+                hands_in_game = result.get('total_hands', 0)
+                hands_this_epoch += hands_in_game
                 successful_games += 1
-                hands_this_game = result.get('total_hands', 0)
-                total_hands += hands_this_game
-                
-                player_results = result.get('player_results', {})
-                main_agent_result = player_results.get(self.main_agent.name, {})
-                win_rate = main_agent_result.get('win_rate', 0.5)
-                total_win_rate += win_rate
-                
-                self._extract_experiences_from_game(result)
+            else:
+                logger.warning(f"Skipping failed game: {result.get('game_id', 'N/A')}")
+
+        self.training_statistics['total_hands_played'] += hands_this_epoch
+        self.training_statistics['successful_games'] += successful_games
+        self.training_statistics['failed_games'] += len(game_results) - successful_games
+        self.training_statistics['total_games'] += len(game_results)
         
-        if successful_games > 0:
-            average_win_rate = total_win_rate / successful_games
-            self.performance_tracker['recent_win_rates'].append(average_win_rate)
+        # After all games in the epoch are processed, extract experiences from the agent copies
+        self._extract_experiences_from_agents(agent_copies)
+        
+        return hands_this_epoch
+
+    def _extract_experiences_from_agents(self, agent_copies: List[SUMAgent]):
+        """
+        Extracts all experiences from the agent copies' buffers and moves them to the trainer's buffer.
+        """
+        total_experiences = 0
+        for agent in agent_copies:
+            if not hasattr(agent, 'experience_buffer'):
+                logger.warning(f"Agent {agent.name} does not have an experience_buffer attribute.")
+                continue
+
+            agent_buffer = agent.experience_buffer
+            if not agent_buffer:
+                logger.warning(f"Agent {agent.name}'s experience buffer is empty. No experiences to extract.")
+                continue
+
+            experiences = list(agent_buffer)
+            self.experience_buffer.add_batch(experiences)
+            total_experiences += len(experiences)
             
-            self.training_statistics['total_games'] += successful_games
-            self.training_statistics['win_rate_history'].append(average_win_rate)
+            agent_buffer.clear()
         
-        self.training_statistics['total_hands_played'] += total_hands
+        if total_experiences > 0:
+            logger.info(f"Extracted {total_experiences} experiences from {len(agent_copies)} agents.")
+        else:
+            logger.warning("No experiences were extracted from any agent.")
+
+    def _extract_experiences_from_agent(self):
+        """
+        Extracts all experiences from the main agent's buffer and moves them to the trainer's buffer.
+        This should be called once per training epoch, after all parallel games have finished.
+        """
+        if not hasattr(self.main_agent, 'experience_buffer'):
+            logger.warning("Main agent does not have an experience_buffer attribute.")
+            return
+
+        agent_buffer = self.main_agent.experience_buffer
+        if not agent_buffer:
+            logger.warning("Agent's experience buffer is empty. No experiences to extract.")
+            return
+
+        new_experiences = list(agent_buffer)
+        agent_buffer.clear()
+
+        self.experience_buffer.extend(new_experiences)
         
-        return total_hands
-    
-    def _extract_experiences_from_game(self, game_result: Dict):
-        if hasattr(self.main_agent, 'experience_buffer') and len(self.main_agent.experience_buffer) > 0:
-            recent_experiences = list(self.main_agent.experience_buffer)[-50:]
-            
-            for exp in recent_experiences:
-                priority = self._calculate_experience_priority(exp, game_result)
-                self.experience_buffer.add_experience(exp, priority)
-    
-    def _calculate_experience_priority(self, experience: Dict, game_result: Dict) -> float:
+        logger.info(f"Moved {len(new_experiences)} experiences from agent to trainer's buffer.")
+        logger.info(f"Trainer experience buffer size: {len(self.experience_buffer)}")
+
+
+    def _calculate_experience_priority(self, experience: Dict) -> float:
+        # Placeholder for priority calculation
         base_priority = 1.0
         
         player_results = game_result.get('player_results', {})
@@ -357,7 +451,7 @@ class SelfPlayTrainer:
             return {'error': 'Insufficient batch size'}
         
         try:
-            loss_info = self.main_agent.train_step(batch_size=len(batch))
+            loss_info = self.main_agent.train_step(batch)
             
             self.training_statistics['total_training_steps'] += 1
             self.training_statistics['loss_history'].append(loss_info)

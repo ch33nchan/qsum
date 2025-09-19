@@ -143,17 +143,75 @@ class SUMLossFunction(nn.Module):
         return normalized_entropy
     
     def _calculate_bluff_incentive(self, hand_strength: torch.Tensor, strategies: torch.Tensor, weights: torch.Tensor) -> torch.Tensor:
-        aggressive_actions = strategies[:, :, -1]
-        weighted_aggression = torch.sum(aggressive_actions * weights, dim=-1)
+        # Determine batch size from strategies tensor (most reliable)
+        if strategies.dim() >= 2:
+            batch_size = strategies.shape[0]
+        elif weights.dim() >= 1:
+            batch_size = weights.shape[0]
+        else:
+            batch_size = 1
+        
+        # Ensure hand_strength is properly shaped [batch_size]
+        if hand_strength.dim() == 0:
+            hand_strength = hand_strength.unsqueeze(0).expand(batch_size)
+        elif hand_strength.dim() > 1:
+            hand_strength = hand_strength.view(-1)
+            if hand_strength.shape[0] != batch_size:
+                hand_strength = hand_strength[:batch_size] if hand_strength.shape[0] > batch_size else hand_strength.expand(batch_size)
+        elif hand_strength.shape[0] != batch_size:
+            hand_strength = hand_strength.expand(batch_size)
+        
+        # Ensure strategies has shape [batch_size, num_strategies, action_dim]
+        if strategies.dim() == 2:
+            # [batch_size, action_dim] -> [batch_size, 1, action_dim]
+            strategies = strategies.unsqueeze(1)
+        elif strategies.dim() == 1:
+            # [action_dim] -> [1, 1, action_dim] -> [batch_size, 1, action_dim]
+            strategies = strategies.unsqueeze(0).unsqueeze(0).expand(batch_size, 1, -1)
+        
+        # Ensure weights has shape [batch_size, num_strategies]
+        if weights.dim() == 1:
+            if weights.shape[0] == batch_size:
+                # [batch_size] -> [batch_size, 1]
+                weights = weights.unsqueeze(1)
+            else:
+                # [num_strategies] -> [1, num_strategies] -> [batch_size, num_strategies]
+                weights = weights.unsqueeze(0).expand(batch_size, -1)
+        elif weights.dim() == 0:
+            # scalar -> [batch_size, 1]
+            weights = weights.unsqueeze(0).unsqueeze(0).expand(batch_size, 1)
+        elif weights.shape[0] != batch_size:
+            # Adjust batch dimension
+            weights = weights[:batch_size] if weights.shape[0] > batch_size else weights.expand(batch_size, -1)
+        
+        # Ensure dimensions match
+        num_strategies = strategies.shape[1]
+        if weights.shape[1] != num_strategies:
+            if weights.shape[1] > num_strategies:
+                weights = weights[:, :num_strategies]
+            else:
+                padding = torch.ones(batch_size, num_strategies - weights.shape[1], device=weights.device) / num_strategies
+                weights = torch.cat([weights, padding], dim=1)
+        
+        # Calculate aggressive actions (last action dimension)
+        aggressive_actions = strategies[:, :, -1]  # [batch_size, num_strategies]
+        weighted_aggression = torch.sum(aggressive_actions * weights, dim=1)  # [batch_size]
+        
+        # Ensure all tensors have the same batch size
+        min_size = min(hand_strength.shape[0], weighted_aggression.shape[0])
+        hand_strength = hand_strength[:min_size]
+        weighted_aggression = weighted_aggression[:min_size]
         
         weak_hand_mask = hand_strength < 0.3
         strong_hand_mask = hand_strength > 0.7
         
         bluff_reward = torch.zeros_like(hand_strength)
         
-        bluff_reward[weak_hand_mask] = weighted_aggression[weak_hand_mask]
+        if weak_hand_mask.any():
+            bluff_reward[weak_hand_mask] = weighted_aggression[weak_hand_mask]
         
-        bluff_reward[strong_hand_mask] = weighted_aggression[strong_hand_mask]
+        if strong_hand_mask.any():
+            bluff_reward[strong_hand_mask] = weighted_aggression[strong_hand_mask]
         
         return bluff_reward
 

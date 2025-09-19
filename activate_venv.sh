@@ -22,6 +22,3 @@ echo "   - Quick test: python run_research_pipeline.py --phases gpu_training --g
 echo "   - Full research: python run_research_pipeline.py"
 echo ""
 echo "💡 Use 'deactivate' to exit the virtual environment"
-
-# Start a new shell with the virtual environment activated
-exec "$SHELL"
