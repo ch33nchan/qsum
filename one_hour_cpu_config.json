@@ -1,0 +1,29 @@
+{
+    "device": "cpu",
+    "gpu_training": {
+        "total_hands": 15000,
+        "parallel_games": 32,
+        "batch_size": 256,
+        "num_strategies": 8,
+        "lambda_commitment": 0.3,
+        "lambda_deception": 0.1,
+        "save_frequency": 1000,
+        "evaluation_frequency": 2500,
+        "learning_rate": 0.002,
+        "target_update_frequency": 100
+    },
+    "cpu_experiments": {
+        "training_hands": 3000,
+        "evaluation_hands": 500,
+        "num_trials": 1
+    },
+    "benchmark_gauntlet": {
+        "hands_per_match": 2000,
+        "num_trials": 1,
+        "generate_plots": true
+    },
+    "phases_to_run": ["gpu_training"],
+    "results_dir": "research_results",
+    "save_checkpoints": true,
+    "validate_environment": false
+}
