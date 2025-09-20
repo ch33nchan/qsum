@@ -172,7 +172,7 @@ class SUMAgent(BasePokerPlayer):
             if hand_strength < 0.3:
                 self.game_statistics['successful_bluffs'] += 1
     
-    def train_step(self, batch: List[Dict]) -> Dict[str, float]:
+    def train_step(self, batch: List[Dict], batch_size: int, **kwargs) -> Dict[str, float]:
         if not batch:
             return {'error': 'Insufficient experience data'}
         
