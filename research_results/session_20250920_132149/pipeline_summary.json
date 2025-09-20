@@ -1,0 +1,56 @@
+{
+  "session_id": "20250920_132149",
+  "config": {
+    "device": "cuda",
+    "gpu_training": {
+      "total_hands": 100000,
+      "parallel_games": 64,
+      "batch_size": 128,
+      "num_strategies": 8,
+      "lambda_commitment": 0.3,
+      "lambda_deception": 0.1,
+      "save_frequency": 10000,
+      "evaluation_frequency": 25000,
+      "learning_rate": 0.001,
+      "target_update_frequency": 500
+    },
+    "cpu_experiments": {
+      "training_hands": 50000,
+      "evaluation_hands": 10000,
+      "num_trials": 2
+    },
+    "benchmark_gauntlet": {
+      "hands_per_match": 50000,
+      "num_trials": 2,
+      "generate_plots": true
+    },
+    "phases_to_run": [
+      "gpu_training"
+    ],
+    "results_dir": "research_results",
+    "save_checkpoints": true,
+    "validate_environment": true
+  },
+  "start_time": 1758370909.338488,
+  "phases_completed": [],
+  "phase_results": {},
+  "errors": [
+    {
+      "phase": "gpu_training",
+      "error": "Torch not compiled with CUDA enabled",
+      "timestamp": 1758370910.279278
+    }
+  ],
+  "validation": {
+    "environment_valid": true,
+    "baseline_agents_count": 5,
+    "device_info": {
+      "cuda_available": false,
+      "cuda_device_count": 0,
+      "selected_device": "cuda"
+    },
+    "validation_duration": 0.9187991619110107
+  },
+  "end_time": 1758370910.279546,
+  "total_duration": 0.9410579204559326
+}
