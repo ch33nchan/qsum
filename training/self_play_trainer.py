@@ -477,7 +477,7 @@ class SelfPlayTrainer:
             return {'error': 'Insufficient batch size'}
         
         try:
-            loss_info = self.main_agent.train_step(batch)
+            loss_info = self.main_agent.train_step(batch, len(batch))
             
             self.training_statistics['total_training_steps'] += 1
             self.training_statistics['loss_history'].append(loss_info)
@@ -540,6 +540,32 @@ class SelfPlayTrainer:
         
         torch.save(checkpoint_data, checkpoint_path)
         logger.info(f"Checkpoint saved: {checkpoint_path}")
+    
+    def save_checkpoint(self, is_best: bool = False):
+        """Public method to save a checkpoint, typically called when model improves"""
+        hands_played = self.training_statistics.get('total_hands_played', 0)
+        training_step = self.training_statistics.get('total_training_steps', 0)
+        
+        # Use the existing _save_checkpoint method
+        self._save_checkpoint(hands_played, training_step)
+        
+        # If this is the best model so far, also save it as the best model
+        if is_best:
+            best_model_path = os.path.join(
+                self.config.checkpoint_dir,
+                "best_model.pt"
+            )
+            checkpoint_data = {
+                'hands_played': hands_played,
+                'training_step': training_step,
+                'model_state_dict': self.main_agent.neural_architecture.state_dict(),
+                'optimizer_state_dict': self.main_agent.optimizer.state_dict(),
+                'target_model_state_dict': self.target_agent.neural_architecture.state_dict(),
+                'training_statistics': self.training_statistics,
+                'config': self.config.__dict__
+            }
+            torch.save(checkpoint_data, best_model_path)
+            logger.info(f"Best model saved: {best_model_path}")
     
     def _save_final_checkpoint(self, hands_played: int, training_step: int, total_duration: float) -> str:
         final_checkpoint = {
