@@ -25,6 +25,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class TrainingConfig:
     total_hands: int = 10_000_000
+    max_epochs: int = 1000
     parallel_games: int = 64
     batch_size: int = 256
     learning_rate: float = 0.001
@@ -233,8 +234,8 @@ class SelfPlayTrainer:
         hands_played = 0
         training_step = 0
         
-        with tqdm(total=self.config.max_hands, desc="Self-Play Training", unit="hands") as pbar:
-            while self.training_statistics['total_hands_played'] < self.config.max_hands:
+        with tqdm(total=self.config.total_hands, desc="Self-Play Training", unit="hands") as pbar:
+            while self.training_statistics['total_hands_played'] < self.config.total_hands:
                 pbar.set_description(f"Epoch {self.training_statistics['current_epoch']+1}/{self.config.max_epochs}")
 
                 # Core training activities
