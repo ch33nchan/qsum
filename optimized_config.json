@@ -2,15 +2,19 @@
     "device": "cuda",
     "gpu_training": {
         "total_hands": 100000,
-        "parallel_games": 64,
-        "batch_size": 512,
-        "num_strategies": 8,
+        "parallel_games": 128,
+        "batch_size": 1024,
+        "num_strategies": 16,
         "lambda_commitment": 0.3,
         "lambda_deception": 0.1,
-        "save_frequency": 5000,
-        "evaluation_frequency": 10000,
-        "learning_rate": 0.001,
-        "target_update_frequency": 250
+        "save_frequency": 2500,
+        "evaluation_frequency": 5000,
+        "learning_rate": 0.002,
+        "target_update_frequency": 100,
+        "gradient_accumulation_steps": 4,
+        "mixed_precision": true,
+        "pin_memory": true,
+        "num_workers": 8
     },
     "cpu_experiments": {
         "training_hands": 10000,
