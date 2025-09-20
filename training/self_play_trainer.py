@@ -203,6 +203,7 @@ class SelfPlayTrainer:
         )
         
         self.training_statistics = {
+            'current_epoch': 0,
             'total_hands_played': 0,
             'total_training_steps': 0,
             'total_games': 0,
@@ -216,6 +217,8 @@ class SelfPlayTrainer:
         }
         
         self.performance_tracker = {
+            'average_win_rate': 0.0,
+            'total_loss': 0.0,
             'recent_win_rates': deque(maxlen=100),
             'recent_losses': deque(maxlen=1000),
             'hands_per_second': deque(maxlen=50)
@@ -230,56 +233,28 @@ class SelfPlayTrainer:
         hands_played = 0
         training_step = 0
         
-        progress_bar = tqdm(
-            total=self.config.total_hands,
-            desc="Training Progress",
-            unit="hands",
-            unit_scale=True,
-            dynamic_ncols=True,
-            bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}] {postfix}"
-        )
+        with tqdm(total=self.config.max_hands, desc="Self-Play Training", unit="hands") as pbar:
+            while self.training_statistics['total_hands_played'] < self.config.max_hands:
+                pbar.set_description(f"Epoch {self.training_statistics['current_epoch']+1}/{self.config.max_epochs}")
+
+                # Core training activities
+                self._run_training_epoch(pbar)
+
+                # Update and log performance metrics
+                self._update_performance_metrics()
+                self._log_training_progress()
+
+                # Check for model improvement and save if necessary
+                if self._is_model_improved():
+                    self.save_checkpoint(is_best=True)
+
+                # Prepare for the next epoch
+                self.training_statistics['current_epoch'] += 1
+                if self.training_statistics['current_epoch'] >= self.config.max_epochs:
+                    logger.info("Maximum number of epochs reached. Ending training.")
+                    break
         
-        try:
-            while hands_played < self.config.total_hands:
-                epoch_start = time.time()
-                
-                game_results, agent_copies = self._run_training_epoch()
-                
-                hands_this_epoch = self._process_game_results(game_results, agent_copies)
-                hands_played += hands_this_epoch
-                
-                progress_bar.update(hands_this_epoch)
-                
-                if len(self.experience_buffer) >= self.config.batch_size:
-                    training_losses = self._training_step()
-                    training_step += 1
-                    
-                    self.performance_tracker['recent_losses'].append(training_losses)
-                    
-                    avg_loss = sum(training_losses.values()) / len(training_losses)
-                    progress_bar.set_postfix({
-                        'Loss': f'{avg_loss:.4f}',
-                        'Step': training_step,
-                        'Buffer': len(self.experience_buffer)
-                    })
-                
-                if training_step % self.config.target_update_frequency == 0 and training_step > 0:
-                    self._update_target_network()
-                
-                if hands_played % self.config.save_frequency == 0 and hands_played > 0:
-                    self._save_checkpoint(hands_played, training_step)
-                
-                if hands_played % self.config.evaluation_frequency == 0 and hands_played > 0:
-                    self._evaluate_progress(hands_played)
-                
-                epoch_duration = time.time() - epoch_start
-                hands_per_second = hands_this_epoch / epoch_duration if epoch_duration > 0 else 0
-                self.performance_tracker['hands_per_second'].append(hands_per_second)
-                
-                self._log_progress(hands_played, training_step, hands_per_second)
-        
-        finally:
-            progress_bar.close()
+            pbar.close()
         
         total_duration = time.time() - start_time
         
@@ -295,7 +270,47 @@ class SelfPlayTrainer:
             'training_statistics': self.training_statistics
         }
     
-    def _run_training_epoch(self) -> Tuple[List[Dict], List[SUMAgent]]:
+    def _run_training_epoch(self, pbar: tqdm):
+        epoch_start_time = time.time()
+        
+        # Run parallel games
+        game_results, agent_copies = self._run_parallel_games()
+        
+        # Process results and extract experiences
+        hands_this_epoch = self._process_game_results(game_results, agent_copies)
+        
+        # Update the main progress bar
+        pbar.update(hands_this_epoch)
+        
+        # Perform training steps if enough experience is available
+        if len(self.experience_buffer) >= self.config.batch_size:
+            num_training_steps = (len(self.experience_buffer) // self.config.batch_size)
+            total_loss = 0
+            for _ in range(num_training_steps):
+                loss_info = self._training_step()
+                if 'total_loss' in loss_info:
+                    total_loss += loss_info['total_loss']
+            
+            avg_loss = total_loss / num_training_steps if num_training_steps > 0 else 0
+            self.performance_tracker['recent_losses'].append(avg_loss)
+        
+        # Update target network periodically
+        if self.training_statistics['total_training_steps'] % self.config.target_update_frequency == 0:
+            self._update_target_network()
+            
+        epoch_duration = time.time() - epoch_start_time
+        hands_per_second = hands_this_epoch / epoch_duration if epoch_duration > 0 else 0
+        self.performance_tracker['hands_per_second'].append(hands_per_second)
+
+        # Update progress bar postfix
+        pbar.set_postfix({
+            "Win Rate": f"{self.performance_tracker.get('average_win_rate', 0.0):.3f}",
+            "Loss": f"{np.mean(list(self.performance_tracker['recent_losses'])) if self.performance_tracker['recent_losses'] else 0.0:.4f}",
+            "HPS": f"{hands_per_second:.1f}",
+            "Buffer": f"{len(self.experience_buffer)}",
+        })
+
+    def _run_parallel_games(self) -> Tuple[List[Dict], List[SUMAgent]]:
         hands_per_game = min(20, max(5, self.config.total_hands // (self.config.parallel_games * 50)))
         
         main_agent_copies = [
@@ -351,14 +366,24 @@ class SelfPlayTrainer:
         logger.info(f"Processing {len(game_results)} game results...")
         hands_this_epoch = 0
         successful_games = 0
+        win_rates_this_epoch = []
         
         for result in game_results:
             if result.get('success', False):
                 hands_in_game = result.get('total_hands', 0)
                 hands_this_epoch += hands_in_game
                 successful_games += 1
+
+                player_results = result.get('player_results', {})
+                # Assuming player_0 is always the main agent
+                if 'player_0' in player_results:
+                    win_rate = player_results['player_0'].get('win_rate', 0.5)
+                    win_rates_this_epoch.append(win_rate)
             else:
                 logger.warning(f"Skipping failed game: {result.get('game_id', 'N/A')}")
+
+        if win_rates_this_epoch:
+            self.performance_tracker['recent_win_rates'].extend(win_rates_this_epoch)
 
         self.training_statistics['total_hands_played'] += hands_this_epoch
         self.training_statistics['successful_games'] += successful_games
@@ -540,6 +565,33 @@ class SelfPlayTrainer:
         logger.info(f"Final checkpoint saved: {final_path}")
         
         return final_path
+
+    def _update_performance_metrics(self):
+        # Calculate average win rate if available
+        if self.performance_tracker['recent_win_rates']:
+            avg_win_rate = np.mean(self.performance_tracker['recent_win_rates'])
+            self.performance_tracker['average_win_rate'] = avg_win_rate
+            # Reset for the next evaluation period
+            self.performance_tracker['recent_win_rates'] = []
+        else:
+            avg_win_rate = self.performance_tracker.get('average_win_rate', 0.0)
+
+        # Update other metrics as needed
+        # For example, you could calculate average loss, explore/exploit ratio, etc.
+        # This is where you would add more detailed metric calculations.
+        pass
+
+    def _log_training_progress(self):
+        logger.info(f"Epoch {self.training_statistics['current_epoch']} Summary:")
+        logger.info(f"  Total Hands: {self.training_statistics['total_hands_played']}")
+        logger.info(f"  Average Win Rate: {self.performance_tracker.get('average_win_rate', 'N/A'):.4f}")
+        logger.info(f"  Total Loss: {self.performance_tracker.get('total_loss', 'N/A')}")
+        logger.info(f"  Successful Games: {self.training_statistics['successful_games']}")
+        logger.info(f"  Failed Games: {self.training_statistics['failed_games']}")
+
+    def _is_model_improved(self) -> bool:
+        # Placeholder for improvement logic
+        return True
     
     def _log_progress(self, hands_played: int, training_step: int, hands_per_second: float):
         if hands_played % 50000 == 0 or hands_played < 1000:
